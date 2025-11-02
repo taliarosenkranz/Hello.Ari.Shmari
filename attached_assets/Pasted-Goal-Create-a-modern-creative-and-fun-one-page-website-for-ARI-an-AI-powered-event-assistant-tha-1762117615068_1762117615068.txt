@@ -1,0 +1,73 @@
+Goal:
+Create a modern, creative, and fun one-page website for ARI, an AI-powered event assistant that automates guest communication, RSVP tracking, and event information management — primarily via WhatsApp.
+Tone & Style:
+Playful but sleek (think: Apple meets Notion meets WhatsApp)
+Light animations, clean layout, big headlines
+Make it feel effortless and smart — ARI should seem like the friendly AI that takes the stress out of event management
+Use conversational, slightly witty language that makes users smile
+Prioritize clarity: each section should make the visitor say, “Oh wow, this solves my exact problem.”
+🖥️ Structure & Content:
+1. Hero Section
+Headline: “Let ARI handle your event chaos — one WhatsApp at a time.”
+Subheadline: “No more manual messaging, guest confusion, or endless follow-ups. Just upload your guest list, and ARI does the rest.”
+Call to Action: Buttons — “Try ARI” / “See How It Works”
+Visual: Animated WhatsApp-style chat window showing ARI confirming RSVPs, answering questions, and sending reminders automatically.
+2. The Problem
+Title: “Let’s be honest. Event planning can be a mess.”
+Use 3–4 quick illustrated pain points with short blurbs:
+💬 “Sending hundreds of WhatsApp messages manually”
+📊 “Losing track of who’s coming (and who’s ghosting)”
+🧠 “Answering the same guest questions over and over”
+🕓 “Updating clients manually, every. single. time.”
+End with:
+“It’s exhausting. You want to focus on the event, not spreadsheets and chats.”
+3. The Simple Solution
+Title: “Meet ARI — your AI assistant for guest communication.”
+Copy:
+“All you need is one Excel sheet with names and phone numbers.
+ARI handles everything from there.”
+Use icons to illustrate:
+✅ Upload guest list
+⚙️ ARI sets up automated WhatsApp invites
+💬 Guests RSVP directly in chat
+🧾 Client sees real-time status updates
+Include:
+“No coding. No stress. Just plug in your data and watch the magic happen.”
+4. The Advanced Setup
+Title: “Want to go deeper? ARI knows your event like you do.”
+Copy:
+“With our advanced setup, you can feed ARI every event detail — from dress code to gift preferences, from hotel suggestions to timing.”
+“That way, when guests ask questions, ARI answers instantly and correctly — 24/7.”
+Bullet points:
+Location & schedule details
+Dress code & theme
+Accommodation options
+Gift registry or payment links
+Custom RSVP buttons (“Coming,” “Not coming,” “Ask me later”)
+Include mini example:
+Guest: “Hey, what’s the dress code again?”
+ARI: “It’s formal — think black tie or cocktail chic 👗🎩”
+5. Desktop Dashboard
+Title: “Everything tracked. Nothing lost.”
+Copy:
+“ARI gives you a clean desktop dashboard where you can see every guest’s RSVP status, questions, and payment — in real time.”
+Include visual mockup: event summary screen, RSVP stats, unanswered questions list, etc.
+6. For Event Planners
+Title: “Perfect for event agencies and planners.”
+Copy:
+“Whether you’re managing a wedding, corporate event, or private dinner — ARI keeps guests happy and your client informed.
+Save hours every week and impress clients with your ‘AI-enhanced service’.”
+7. Call to Action
+Title: “Let ARI handle your next event.”
+Copy:
+“Upload your guest list today and experience stress-free event communication.”
+Buttons:
+“Get Started”
+“Book a Demo”
+Optional subline: “No setup cost. No coding. Just peace of mind.”
+🎨 Design Notes:
+Colors: light background with ARI’s green and muted neutrals
+Font: SF Pro Text for clarity, Merriweather for headers
+Add micro-animations: chat bubbles appearing, Excel file uploading
+Responsive layout (mobile-first)
+Minimalist navigation: Home • Features • How It Works • Contact
