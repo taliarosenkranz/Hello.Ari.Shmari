@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertDemoRequestSchema } from "@shared/schema";
+import type { InsertDemoRequest } from "@shared/schema";
 
 interface BookDemoModalProps {
   isOpen: boolean;
@@ -26,34 +40,53 @@ interface BookDemoModalProps {
 
 export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    eventType: "",
-    message: "",
+  
+  const form = useForm<InsertDemoRequest>({
+    resolver: zodResolver(insertDemoRequestSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      eventType: "",
+      message: "",
+    },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.eventType) {
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
+  const submitDemoRequest = useMutation({
+    mutationFn: async (data: InsertDemoRequest) => {
+      const response = await apiRequest("POST", "/api/demo-requests", data);
+      return await response.json();
+    },
+    onSuccess: () => {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
+        title: "Demo Booked Successfully!",
+        description: "We'll get in touch with you within 24 hours.",
+      });
+      form.reset();
+      onClose();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit demo request. Please try again.",
         variant: "destructive",
       });
-      return;
-    }
+    },
+  });
 
-    console.log("Demo booking submitted:", formData);
-    toast({
-      title: "Demo Booked Successfully!",
-      description: "We'll get in touch with you within 24 hours.",
-    });
-    
-    setFormData({ name: "", email: "", phone: "", eventType: "", message: "" });
-    onClose();
+  const handleSubmit = (data: InsertDemoRequest) => {
+    const normalizedData = {
+      ...data,
+      phone: data.phone?.trim() || null,
+      message: data.message?.trim() || null,
+    };
+    submitDemoRequest.mutate(normalizedData);
   };
 
   return (
@@ -65,91 +98,123 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
             Fill out the form below and we'll reach out to schedule your personalized ARI demo.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name *</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="John Doe"
-              data-testid="input-name"
-              required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 mt-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} data-testid="input-name" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="john@example.com"
-              data-testid="input-email"
-              required
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email *</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="john@example.com" {...field} data-testid="input-email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="+1 (555) 123-4567"
-              data-testid="input-phone"
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="tel" 
+                      placeholder="+1 (555) 123-4567" 
+                      {...field}
+                      value={field.value || ""}
+                      data-testid="input-phone" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="eventType">Event Type *</Label>
-            <Select
-              value={formData.eventType}
-              onValueChange={(value) => setFormData({ ...formData, eventType: value })}
-              required
-            >
-              <SelectTrigger id="eventType" data-testid="select-event-type">
-                <SelectValue placeholder="Select event type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="wedding">Wedding</SelectItem>
-                <SelectItem value="corporate">Corporate Event</SelectItem>
-                <SelectItem value="birthday">Birthday Party</SelectItem>
-                <SelectItem value="conference">Conference</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="message">Message (Optional)</Label>
-            <Textarea
-              id="message"
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              placeholder="Tell us about your event..."
-              rows={3}
-              data-testid="input-message"
+            <FormField
+              control={form.control}
+              name="eventType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Event Type *</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger data-testid="select-event-type">
+                        <SelectValue placeholder="Select event type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="wedding">Wedding</SelectItem>
+                      <SelectItem value="corporate">Corporate Event</SelectItem>
+                      <SelectItem value="birthday">Birthday Party</SelectItem>
+                      <SelectItem value="conference">Conference</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-              data-testid="button-cancel"
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1" data-testid="button-submit">
-              Book Demo
-            </Button>
-          </div>
-        </form>
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Tell us about your event..."
+                      rows={3}
+                      {...field}
+                      value={field.value || ""}
+                      data-testid="input-message"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="flex-1"
+                data-testid="button-cancel"
+                disabled={submitDemoRequest.isPending}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                className="flex-1" 
+                data-testid="button-submit"
+                disabled={submitDemoRequest.isPending}
+              >
+                {submitDemoRequest.isPending ? "Submitting..." : "Book Demo"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
