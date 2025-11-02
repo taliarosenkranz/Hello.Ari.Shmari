@@ -27,10 +27,18 @@ export const demoRequests = pgTable("demo_requests", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const insertDemoRequestSchema = createInsertSchema(demoRequests).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertDemoRequestSchema = createInsertSchema(demoRequests)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email address").min(1, "Email is required"),
+    eventType: z.string().min(1, "Event type is required"),
+    phone: z.string().nullish(),
+    message: z.string().nullish(),
+  });
 
 export type InsertDemoRequest = z.infer<typeof insertDemoRequestSchema>;
 export type DemoRequest = typeof demoRequests.$inferSelect;
