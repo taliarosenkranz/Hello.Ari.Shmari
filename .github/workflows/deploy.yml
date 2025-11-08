@@ -45,11 +45,15 @@ jobs:
       - name: Debug env
         run: node -e "console.log('VITE_WEB3FORMS_ACCESS_KEY length:', (process.env.VITE_WEB3FORMS_ACCESS_KEY||'').length)"
 
+      - name: Write Vite env file
+        working-directory: ./client
+        run: |
+          printf "VITE_WEB3FORMS_ACCESS_KEY=%s\n" "$VITE_WEB3FORMS_ACCESS_KEY" > .env.production
+          echo ".env.production written"
+
       - name: Build
         working-directory: ./client
         run: npm run build
-        env:
-          VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
 
       - name: Create SPA fallback (404 -> index)
         run: cp ./client/dist/index.html ./client/dist/404.html
