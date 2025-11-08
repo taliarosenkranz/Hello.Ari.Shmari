@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -27,7 +26,6 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertDemoRequestSchema } from "@shared/schema";
@@ -60,7 +58,26 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
 
   const submitDemoRequest = useMutation({
     mutationFn: async (data: InsertDemoRequest) => {
-      const response = await apiRequest("POST", "/api/demo-requests", data);
+      // Web3Forms API endpoint
+      const formData = new FormData();
+      formData.append("access_key", import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "");
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("phone", data.phone || "Not provided");
+      formData.append("eventType", data.eventType);
+      formData.append("message", data.message || "No message provided");
+      formData.append("subject", `New Demo Request from ${data.name}`);
+      formData.append("from_name", "ARI Website");
+      
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to submit form");
+      }
+      
       return await response.json();
     },
     onSuccess: () => {
