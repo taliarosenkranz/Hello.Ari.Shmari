@@ -72,11 +72,9 @@ export default function PrivacyPolicy() {
               <address className="not-italic">
                 Ari
                 <br />
-                [Business address]
                 <br />
-                [Email: info@yourdomain.com]
+                [Email: hello.ari.shmari@gmail.com]
                 <br />
-                [Website: www.yourdomain.com]
               </address>
             </section>
           </CardContent>
