@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold">Privacy Policy – Ari</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">Last updated: [insert date]</p>
+            <p className="text-sm text-muted-foreground mt-2">Last updated: {new Date().toISOString().split("T")[0]}</p>
           </CardHeader>
           <CardContent className="space-y-8 text-sm leading-relaxed">
             <section>
@@ -70,11 +70,8 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-2">Contact:</h2>
               <address className="not-italic">
-                Ari
-                <br />
-                <br />
-                [Email: hello.ari.shmari@gmail.com]
-                <br />
+                Ari<br />
+                Email: <a href="mailto:hello.ari.shmari@gmail.com" className="text-primary underline">hello.ari.shmari@gmail.com</a>
               </address>
             </section>
           </CardContent>

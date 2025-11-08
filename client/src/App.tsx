@@ -8,8 +8,9 @@ import NotFound from "@/pages/not-found";
 import PrivacyPolicy from "@/pages/privacy";
 
 function Router() {
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
   return (
-    <WouterRouter base={import.meta.env.BASE_URL}>
+    <WouterRouter base={base}>
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/privacy" component={PrivacyPolicy} />
