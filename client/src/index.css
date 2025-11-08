@@ -228,7 +228,8 @@
 
 @layer base {
   * {
-    @apply border-border;
+    /* Use the CSS variable directly for border color instead of applying a Tailwind utility that may not exist during build */
+    border-color: hsl(var(--border));
   }
 
   body {

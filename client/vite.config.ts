@@ -5,16 +5,10 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   base: '/Hello.Ari.Shmari/',
-  build: {
-    outDir: './dist',
-    emptyOutDir: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
-    },
-  },
-  server: {
-    port: 3000
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@shared': path.resolve(__dirname, '../shared')
+    }
   }
 })
