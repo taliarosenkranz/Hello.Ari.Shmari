@@ -4,7 +4,8 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  // Use repo name as base for GitHub Pages project site
+  base: '/Hello.Ari.Shmari/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
