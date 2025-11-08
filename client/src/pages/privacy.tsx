@@ -1,10 +1,16 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-background text-foreground py-12 px-4">
       <div className="max-w-3xl mx-auto">
+        <div className="mb-6">
+          <Button variant="outline" size="sm" onClick={() => (window.location.href = (import.meta.env.BASE_URL || "/"))}>
+            ← Back
+          </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="text-3xl font-bold">Privacy Policy – Ari</CardTitle>
@@ -61,7 +67,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-2">Your Rights:</h2>
               <p>
-                Guests can contact us at [your business email address] to request access, correction, or
+                Guests can contact us at hello.ari.shmari@gmail.com to request access, correction, or
                 deletion of their data.
               </p>
             </section>
