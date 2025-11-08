@@ -28,8 +28,18 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertDemoRequestSchema } from "@shared/schema";
-import type { InsertDemoRequest } from "@shared/schema";
+import { z } from "zod"; // use local zod
+
+// Local client-only schema (avoid drizzle-zod in browser)
+const demoRequestFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  phone: z.string().optional(),
+  eventType: z.string().min(1, "Event type is required"),
+  message: z.string().optional(),
+});
+
+type DemoFormData = z.infer<typeof demoRequestFormSchema>;
 
 interface BookDemoModalProps {
   isOpen: boolean;
@@ -40,8 +50,8 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
   const { toast } = useToast();
   const hasAccessKey = Boolean(import.meta.env.VITE_WEB3FORMS_ACCESS_KEY);
   
-  const form = useForm<InsertDemoRequest>({
-    resolver: zodResolver(insertDemoRequestSchema),
+  const form = useForm<DemoFormData>({
+    resolver: zodResolver(demoRequestFormSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -58,7 +68,7 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
   }, [isOpen, form]);
 
   const submitDemoRequest = useMutation({
-    mutationFn: async (data: InsertDemoRequest) => {
+    mutationFn: async (data: DemoFormData) => {
       const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
       if (!accessKey) {
         throw new Error("Missing Web3Forms access key. Configure VITE_WEB3FORMS_ACCESS_KEY.");
@@ -68,13 +78,13 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
       formData.append("access_key", accessKey);
       formData.append("name", data.name);
       formData.append("email", data.email);
-      formData.append("phone", data.phone || "Not provided");
-      formData.append("event_type", data.eventType); // use snake_case label for readability
-      formData.append("message", data.message || "No message provided");
+      formData.append("phone", (data.phone && data.phone.trim()) || "Not provided");
+      formData.append("event_type", data.eventType);
+      formData.append("message", (data.message && data.message.trim()) || "No message provided");
       formData.append("subject", `New Demo Request from ${data.name}`);
       formData.append("from_name", "ARI Website");
       formData.append("reply_to", data.email);
-      formData.append("redirect", "false"); // ask for JSON response instead of redirect
+      formData.append("redirect", "false");
 
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
@@ -84,7 +94,6 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
         },
       });
 
-      // Web3Forms returns 200 with success=false on validation errors
       const json = await response.json().catch(() => ({ success: false, message: "Invalid JSON response" }));
 
       if (!response.ok || !json?.success) {
@@ -111,11 +120,11 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
     },
   });
 
-  const handleSubmit = (data: InsertDemoRequest) => {
-    const normalizedData = {
+  const handleSubmit = (data: DemoFormData) => {
+    const normalizedData: DemoFormData = {
       ...data,
-      phone: data.phone?.trim() || null,
-      message: data.message?.trim() || null,
+      phone: data.phone?.trim() || undefined,
+      message: data.message?.trim() || undefined,
     };
     submitDemoRequest.mutate(normalizedData);
   };
