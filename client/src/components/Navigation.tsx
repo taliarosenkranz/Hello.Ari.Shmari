@@ -64,6 +64,13 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
             >
               Contact
             </button>
+            <a
+              href={`${import.meta.env.BASE_URL}privacy`}
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              data-testid="link-privacy"
+            >
+              Privacy
+            </a>
             <Button
               onClick={onBookDemo}
               variant="default"
@@ -109,6 +116,13 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
             >
               Contact
             </button>
+            <a
+              href={`${import.meta.env.BASE_URL}privacy`}
+              className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
+              data-testid="link-mobile-privacy"
+            >
+              Privacy
+            </a>
             <Button
               onClick={onBookDemo}
               variant="default"
