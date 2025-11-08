@@ -38,6 +38,7 @@ interface BookDemoModalProps {
 
 export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
   const { toast } = useToast();
+  const hasAccessKey = Boolean(import.meta.env.VITE_WEB3FORMS_ACCESS_KEY);
   
   const form = useForm<InsertDemoRequest>({
     resolver: zodResolver(insertDemoRequestSchema),
@@ -58,37 +59,50 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
 
   const submitDemoRequest = useMutation({
     mutationFn: async (data: InsertDemoRequest) => {
-      // Web3Forms API endpoint
+      const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+      if (!accessKey) {
+        throw new Error("Missing Web3Forms access key. Configure VITE_WEB3FORMS_ACCESS_KEY.");
+      }
+
       const formData = new FormData();
-      formData.append("access_key", import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "");
+      formData.append("access_key", accessKey);
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("phone", data.phone || "Not provided");
-      formData.append("eventType", data.eventType);
+      formData.append("event_type", data.eventType); // use snake_case label for readability
       formData.append("message", data.message || "No message provided");
       formData.append("subject", `New Demo Request from ${data.name}`);
       formData.append("from_name", "ARI Website");
-      
+      formData.append("reply_to", data.email);
+      formData.append("redirect", "false"); // ask for JSON response instead of redirect
+
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: formData,
+        headers: {
+          Accept: "application/json",
+        },
       });
-      
-      if (!response.ok) {
-        throw new Error("Failed to submit form");
+
+      // Web3Forms returns 200 with success=false on validation errors
+      const json = await response.json().catch(() => ({ success: false, message: "Invalid JSON response" }));
+
+      if (!response.ok || !json?.success) {
+        throw new Error(json?.message || `Submission failed (${response.status})`);
       }
-      
-      return await response.json();
+
+      return json;
     },
-    onSuccess: () => {
+    onSuccess: (json) => {
       toast({
         title: "Demo Booked Successfully!",
-        description: "We'll get in touch with you within 24 hours.",
+        description: json?.message || "We'll get in touch with you within 24 hours.",
       });
       form.reset();
       onClose();
     },
     onError: (error: Error) => {
+      console.error("Web3Forms error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to submit demo request. Please try again.",
@@ -209,6 +223,10 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
                 </FormItem>
               )}
             />
+
+            {!hasAccessKey && (
+              <p className="text-xs text-amber-600">Missing Web3Forms access key. Submissions will fail until VITE_WEB3FORMS_ACCESS_KEY is set.</p>
+            )}
 
             <div className="flex gap-3 pt-4">
               <Button
