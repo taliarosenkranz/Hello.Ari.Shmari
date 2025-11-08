@@ -20,6 +20,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      VITE_WEB3FORMS_ACCESS_KEY: ${{ secrets.VITE_WEB3FORMS_ACCESS_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,6 +41,9 @@ jobs:
       - name: Install client dependencies
         working-directory: ./client
         run: npm ci
+
+      - name: Debug env
+        run: node -e "console.log('VITE_WEB3FORMS_ACCESS_KEY length:', (process.env.VITE_WEB3FORMS_ACCESS_KEY||'').length)"
 
       - name: Build
         working-directory: ./client
