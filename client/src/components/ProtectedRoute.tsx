@@ -1,4 +1,5 @@
-import { Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -8,6 +9,7 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const [, setLocation] = useLocation();
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -22,8 +24,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      setLocation('/signin');
+    }
+  }, [user, loading, setLocation]);
+
   if (!user) {
-    return <Navigate to="/signin" replace />;
+    return null;
   }
 
   // Render the protected content

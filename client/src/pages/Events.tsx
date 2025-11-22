@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link } from 'wouter';
 import { createPageUrl } from '@/lib/pageUtils';
 import { api } from '@/lib/api';
 import { Button } from "@/components/ui/button";
