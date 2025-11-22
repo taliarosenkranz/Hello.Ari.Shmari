@@ -51,8 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await authHelpers.signOut();
+      // Get the base URL from environment
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const homeUrl = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
       // Redirect to home after sign out
-      window.location.href = '/';
+      window.location.href = homeUrl;
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;

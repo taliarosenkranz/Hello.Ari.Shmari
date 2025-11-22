@@ -7,6 +7,7 @@ import { Plus, Calendar, MapPin, Loader2 } from "lucide-react";
 import { format } from 'date-fns';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function Events() {
     const { data: events, isLoading } = useQuery({
@@ -16,14 +17,17 @@ export default function Events() {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-            </div>
+            <DashboardLayout>
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                </div>
+            </DashboardLayout>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-12">
+        <DashboardLayout>
+            <div className="max-w-7xl mx-auto px-4 py-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
                 <div>
                     <h1 className="text-3xl font-serif font-bold text-slate-900">Your Events</h1>
@@ -81,6 +85,7 @@ export default function Events() {
                     </Link>
                 </div>
             )}
-        </div>
+            </div>
+        </DashboardLayout>
     );
 }

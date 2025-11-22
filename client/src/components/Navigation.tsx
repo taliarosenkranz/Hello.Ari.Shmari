@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "wouter";
+import { createPageUrl } from "@/lib/pageUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -95,10 +96,10 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => setLocation("/events")}>
+                  <DropdownMenuItem onClick={() => setLocation(createPageUrl('Events'))}>
                     My Events
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/events/new")}>
+                  <DropdownMenuItem onClick={() => setLocation(createPageUrl('CreateEvent'))}>
                     Create Event
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -111,7 +112,7 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
               <Button 
                 variant="ghost" 
                 className="gap-2"
-                onClick={() => setLocation("/signin")}
+                onClick={() => setLocation(createPageUrl('SignIn'))}
               >
                 <LogIn className="w-4 h-4" />
                 Sign In
@@ -176,7 +177,7 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
               <>
                 <button
                   onClick={() => {
-                    setLocation("/events");
+                    setLocation(createPageUrl('Events'));
                     setIsMobileMenuOpen(false);
                   }}
                   className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
@@ -185,7 +186,7 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
                 </button>
                 <button
                   onClick={() => {
-                    setLocation("/events/new");
+                    setLocation(createPageUrl('CreateEvent'));
                     setIsMobileMenuOpen(false);
                   }}
                   className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
@@ -208,7 +209,7 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
             ) : (
               <button
                 onClick={() => {
-                  setLocation("/signin");
+                  setLocation(createPageUrl('SignIn'));
                   setIsMobileMenuOpen(false);
                 }}
                 className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"

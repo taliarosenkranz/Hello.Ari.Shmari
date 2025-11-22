@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check } from "lucide-react";
+import DashboardLayout from '@/components/DashboardLayout';
 import StepBasicInfo from '@/components/create-event/StepBasicInfo';
 import StepInvitation from '@/components/create-event/StepInvitationInfo';
 import StepGuests from '@/components/create-event/StepGuests';
@@ -66,7 +67,8 @@ export default function CreateEvent() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <DashboardLayout>
+            <div className="min-h-screen bg-slate-50 pb-20">
             {/* Progress Bar */}
             <div className="bg-white border-b border-slate-200 sticky top-16 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-4">
@@ -101,5 +103,6 @@ export default function CreateEvent() {
                 {renderStep()}
             </div>
         </div>
+        </DashboardLayout>
     );
 }

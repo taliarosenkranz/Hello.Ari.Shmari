@@ -7,7 +7,7 @@ export function createPageUrl(pageName: string): string {
     'Home': '/',
     'SignIn': '/signin',
     'Events': '/events',
-    'CreateEvent': '/create-event',
+    'CreateEvent': '/events/new',
     'EventDashboard': '/event-dashboard',
   };
 

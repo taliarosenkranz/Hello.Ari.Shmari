@@ -2,6 +2,7 @@ import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
 import { createPageUrl } from '@/lib/pageUtils';
+import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,7 +59,8 @@ export default function EventDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <DashboardLayout>
+            <div className="min-h-screen bg-slate-50 pb-20">
             {/* Dashboard Header */}
             <div className="bg-white border-b border-slate-200 py-8 px-4 lg:px-8 mb-8">
                 <div className="max-w-7xl mx-auto">
@@ -152,6 +154,7 @@ export default function EventDashboard() {
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </DashboardLayout>
     );
 }
