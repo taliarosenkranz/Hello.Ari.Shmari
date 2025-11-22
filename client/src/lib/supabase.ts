@@ -40,9 +40,7 @@ export interface Guest {
   phone_number: string;
   rsvp_status: 'pending' | 'confirmed' | 'declined' | 'maybe' | 'attending';
   messaging_preference: 'whatsapp' | 'sms';
-  invitations_sent_out?: boolean; // Matches database column name
   invitation_received?: boolean;
-  invitation_sent_date?: string;
   updated_date?: string;
   created_date?: string;
 }

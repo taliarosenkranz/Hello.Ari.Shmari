@@ -38,7 +38,6 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     phone_number: g.phone_number,
                     messaging_preference: g.messaging_preference || 'whatsapp',
                     event_id: event.event_id,
-                    invitations_sent_out: false,
                     rsvp_status: 'pending' as const
                 }));
                 await api.guests.bulkCreate(guestsPayload);
