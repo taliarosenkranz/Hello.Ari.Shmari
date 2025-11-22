@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export default function Events() {
-    const { data: events, isLoading } = useQuery({
+    const { data: events, isLoading, error } = useQuery({
         queryKey: ['events'],
         queryFn: () => api.events.list({ sort: { created_date: -1 } }),
     });
@@ -20,6 +20,29 @@ export default function Events() {
             <DashboardLayout>
                 <div className="flex items-center justify-center min-h-[60vh]">
                     <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    // Handle errors (like RLS not configured)
+    if (error) {
+        return (
+            <DashboardLayout>
+                <div className="max-w-7xl mx-auto px-4 py-12">
+                    <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <Calendar className="w-8 h-8 text-slate-300" />
+                        </div>
+                        <h3 className="text-lg font-medium text-slate-900 mb-1">Unable to load events</h3>
+                        <p className="text-slate-500 mb-6">Database permissions may need to be configured.</p>
+                        <Link to={createPageUrl('CreateEvent')}>
+                            <Button variant="outline" className="gap-2">
+                                <Plus className="w-4 h-4" />
+                                Create Your First Event
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             </DashboardLayout>
         );

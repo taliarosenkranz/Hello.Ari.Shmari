@@ -17,7 +17,12 @@ export default function StepGuests({ data, onUpdate, onNext, onBack }) {
         
         try {
             setError('');
-            const parsedGuests = await parseCSV(file);
+            
+            // Read file content
+            const text = await file.text();
+            
+            // Parse CSV content
+            const parsedGuests = parseCSV(text);
             setGuests(parsedGuests);
             onUpdate({ guests: parsedGuests });
         } catch (err) {

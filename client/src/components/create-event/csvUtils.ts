@@ -4,7 +4,7 @@
 
 export interface ParsedGuest {
   name: string;
-  phone: string;
+  phone_number: string;
   email?: string;
   messaging_preference?: 'whatsapp' | 'sms';
   plus_one_allowed?: boolean;
@@ -28,7 +28,7 @@ export function parseCSV(csvContent: string): ParsedGuest[] {
     const values = lines[i].split(',').map(v => v.trim());
     const guest: ParsedGuest = {
       name: '',
-      phone: '',
+      phone_number: '',
     };
 
     headers.forEach((header, index) => {
@@ -39,7 +39,9 @@ export function parseCSV(csvContent: string): ParsedGuest[] {
           guest.name = value;
           break;
         case 'phone':
-          guest.phone = value;
+        case 'phone_number':
+        case 'phone number':
+          guest.phone_number = value;
           break;
         case 'email':
           guest.email = value;
@@ -59,7 +61,7 @@ export function parseCSV(csvContent: string): ParsedGuest[] {
       }
     });
 
-    if (guest.name && guest.phone) {
+    if (guest.name && guest.phone_number) {
       guests.push(guest);
     }
   }
