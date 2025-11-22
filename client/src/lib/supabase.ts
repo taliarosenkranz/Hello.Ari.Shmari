@@ -52,8 +52,7 @@ export interface EventStatus {
   total_confirmed: number;
   total_pending: number;
   total_declined: number;
-  invitations_sent: number;
-  invitations_sent_out?: boolean; // Legacy field
+  invitations_sent_out?: boolean;
   rsvp_reminder_stage?: number;
   rsvp_reminder_date?: string;
   last_updated?: string;

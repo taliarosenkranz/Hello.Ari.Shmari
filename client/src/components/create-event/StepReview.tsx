@@ -46,7 +46,6 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             // 3. Create Event Status
             await api.eventStatus.upsert({
                 event_id: event.event_id,
-                invitations_sent: 0,
                 total_guests: data.guests?.length || 0,
                 total_confirmed: 0,
                 total_pending: data.guests?.length || 0,
