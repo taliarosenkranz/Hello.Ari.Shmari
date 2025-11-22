@@ -74,10 +74,14 @@ export interface Message {
 // Auth helper functions
 export const authHelpers = {
   async signInWithGoogle() {
+    // Use VITE_APP_URL if available, otherwise construct from window.location
+    const appUrl = import.meta.env.VITE_APP_URL || `${window.location.origin}${import.meta.env.BASE_URL}`;
+    const redirectUrl = `${appUrl}/events`;
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/events`,
+        redirectTo: redirectUrl,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
