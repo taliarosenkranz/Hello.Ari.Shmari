@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn, UserCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "wouter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface NavigationProps {
   onBookDemo: () => void;
@@ -9,6 +18,8 @@ interface NavigationProps {
 export default function Navigation({ onBookDemo }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,6 +82,42 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
             >
               Privacy
             </a>
+            
+            {/* Authentication buttons */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-2">
+                    <UserCircle className="w-4 h-4" />
+                    <span className="max-w-[150px] truncate text-sm">
+                      {user.email}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => setLocation("/events")}>
+                    My Events
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/events/new")}>
+                    Create Event
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="ghost" 
+                className="gap-2"
+                onClick={() => setLocation("/signin")}
+              >
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </Button>
+            )}
+
             <Button
               onClick={onBookDemo}
               variant="default"
@@ -123,8 +170,56 @@ export default function Navigation({ onBookDemo }: NavigationProps) {
             >
               Privacy
             </a>
+            
+            {/* Mobile auth buttons */}
+            {user ? (
+              <>
+                <button
+                  onClick={() => {
+                    setLocation("/events");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
+                >
+                  My Events
+                </button>
+                <button
+                  onClick={() => {
+                    setLocation("/events/new");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
+                >
+                  Create Event
+                </button>
+                <div className="px-3 py-2 text-xs text-muted-foreground truncate">
+                  {user.email}
+                </div>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-3 py-2 text-base font-medium text-destructive hover-elevate rounded-md"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setLocation("/signin");
+                  setIsMobileMenuOpen(false);
+                }}
+                className="block w-full text-left px-3 py-2 text-base font-medium text-foreground hover-elevate rounded-md"
+              >
+                <LogIn className="w-4 h-4 inline mr-2" />
+                Sign In
+              </button>
+            )}
+            
             <Button
-              onClick={onBookDemo}
+              onClick={() => { onBookDemo(); setIsMobileMenuOpen(false); }}
               variant="default"
               className="w-full"
               data-testid="button-mobile-demo"
