@@ -16,11 +16,22 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
     const [, setLocation] = useLocation();
     const [isLaunching, setIsLaunching] = useState(false);
     const [launchSuccess, setLaunchSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const launchEvent = async () => {
         setIsLaunching(true);
+        setErrorMessage(null);
+        
         try {
+            console.log('🚀 Starting event creation...');
+            
             // 1. Create Event
+            console.log('📝 Step 1: Creating event...', {
+                name: data.name,
+                date: data.date,
+                venue: data.venue,
+            });
+            
             const event = await api.events.create({
                 name: data.name,
                 date: data.date,
@@ -30,9 +41,13 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                 end_time: data.end_time,
                 dress_code: data.dress_code,
             });
+            
+            console.log('✅ Event created successfully:', event.event_id);
 
             // 2. Create Guests (Bulk)
             if (data.guests && data.guests.length > 0) {
+                console.log(`👥 Step 2: Creating ${data.guests.length} guests...`);
+                
                 const guestsPayload = data.guests.map((g: any) => ({
                     name: g.name,
                     phone_number: g.phone_number,
@@ -40,11 +55,17 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     event_id: event.event_id,
                     rsvp_status: 'pending' as const
                 }));
-                await api.guests.bulkCreate(guestsPayload);
+                
+                console.log('Guest payload sample:', guestsPayload[0]);
+                const createdGuests = await api.guests.bulkCreate(guestsPayload);
+                console.log(`✅ Created ${createdGuests.length} guests successfully`);
+            } else {
+                console.log('⚠️ No guests to create');
             }
 
             // 3. Create Event Status
-            await api.eventStatus.upsert({
+            console.log('📊 Step 3: Creating event status...');
+            const statusPayload = {
                 event_id: event.event_id,
                 total_guests: data.guests?.length || 0,
                 total_confirmed: 0,
@@ -53,17 +74,39 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                 invitations_sent_out: false,
                 rsvp_reminder_stage: 0,
                 rsvp_reminder_date: data.rsvp_reminder_date
-            });
+            };
+            
+            console.log('Status payload:', statusPayload);
+            const eventStatus = await api.eventStatus.upsert(statusPayload);
+            console.log('✅ Event status created successfully:', eventStatus);
 
+            console.log('🎉 All steps completed successfully!');
             setLaunchSuccess(true);
+            
             // Redirect after delay
             setTimeout(() => {
                 setLocation(createPageUrl('Events'));
             }, 2000);
 
-        } catch (error) {
-            console.error("Failed to launch event", error);
-            // Handle error (toast, etc.)
+        } catch (error: any) {
+            console.error("❌ Failed to launch event:", error);
+            console.error("Error details:", {
+                message: error.message,
+                code: error.code,
+                details: error.details,
+                hint: error.hint,
+            });
+            
+            // Set user-friendly error message
+            let errorMsg = "Failed to create event. ";
+            if (error.message) {
+                errorMsg += error.message;
+            }
+            if (error.hint) {
+                errorMsg += ` Hint: ${error.hint}`;
+            }
+            
+            setErrorMessage(errorMsg);
         } finally {
             setIsLaunching(false);
         }
@@ -179,6 +222,23 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Error Message */}
+            {errorMessage && (
+                <Card className="border-red-200 bg-red-50">
+                    <CardContent className="pt-6">
+                        <div className="flex items-start gap-3">
+                            <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-white text-xs font-bold">!</span>
+                            </div>
+                            <div>
+                                <p className="font-semibold text-red-900 mb-1">Error Creating Event</p>
+                                <p className="text-sm text-red-700">{errorMessage}</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <div className="flex justify-between pt-8">
                 <Button variant="outline" onClick={onBack} disabled={isLaunching}>Back</Button>
