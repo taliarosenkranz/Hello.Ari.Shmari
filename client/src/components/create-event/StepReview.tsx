@@ -67,6 +67,7 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             console.log('📊 Step 3: Creating event status...');
             const statusPayload = {
                 event_id: event.event_id,
+                event_name: data.name,  // Add event_name - required field in event_status table
                 total_guests: data.guests?.length || 0,
                 total_confirmed: 0,
                 total_pending: data.guests?.length || 0,

@@ -48,6 +48,7 @@ export interface Guest {
 export interface EventStatus {
   status_id: string;
   event_id: string;
+  event_name: string;  // Required field in database
   total_guests: number;
   total_confirmed: number;
   total_pending: number;
