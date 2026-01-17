@@ -3,7 +3,7 @@ import { createPageUrl } from '@/lib/pageUtils';
 import { api } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageSquare, Clock, CheckCircle2, Loader2 } from "lucide-react";
+import { Calendar, Users, MessageSquare, Clock, CheckCircle2, Loader2, MapPin, Shirt, Bell } from "lucide-react";
 import { format } from 'date-fns';
 import { useLocation } from 'wouter';
 
@@ -26,22 +26,24 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             console.log('🚀 Starting event creation...');
             
             // 1. Create Event
-            console.log('📝 Step 1: Creating event...', {
-                name: data.name,
-                date: data.date,
-                venue: data.venue,
-            });
+            console.log('📝 Step 1: Creating event...');
             
-            const event = await api.events.create({
+            const eventPayload = {
                 name: data.name,
                 date: data.date,
                 venue: data.venue,
-                invitation_message: data.invitation_message,
                 start_time: data.start_time,
-                end_time: data.end_time,
-                dress_code: data.dress_code,
-            });
+                end_time: data.end_time || null,
+                chuppah_start_time: data.chuppah_start_time || null,
+                dress_code: data.dress_code || null,
+                location_map: data.location_map || null,
+                special_notes: data.special_notes || null,
+                invitation_message: data.invitation_message,
+                invitation_image_url: data.invitation_image_url || null,
+            };
             
+            console.log('Event payload:', eventPayload);
+            const event = await api.events.create(eventPayload);
             console.log('✅ Event created successfully:', event.event_id);
 
             // 2. Create Guests (Bulk)
@@ -51,14 +53,25 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                 const guestsPayload = data.guests.map((g: any) => ({
                     name: g.name,
                     phone_number: g.phone_number,
-                    messaging_preference: g.messaging_preference || 'whatsapp',
+                    messaging_preference: g.messaging_preference || 'sms',
                     event_id: event.event_id,
-                    rsvp_status: 'pending' as const
+                    rsvp_status: 'pending' as const,
+                    invitation_received: false,
                 }));
                 
                 console.log('Guest payload sample:', guestsPayload[0]);
-                const createdGuests = await api.guests.bulkCreate(guestsPayload);
-                console.log(`✅ Created ${createdGuests.length} guests successfully`);
+                
+                try {
+                    const createdGuests = await api.guests.bulkCreate(guestsPayload);
+                    console.log(`✅ Created ${createdGuests.length} guests successfully`);
+                } catch (guestError: any) {
+                    // Handle duplicate phone number error gracefully
+                    if (guestError?.code === '23505') {
+                        console.error('⚠️ Duplicate phone number detected:', guestError.details);
+                        throw new Error(`A guest with one of these phone numbers already exists in another event. Please check your guest list for duplicates.`);
+                    }
+                    throw guestError;
+                }
             } else {
                 console.log('⚠️ No guests to create');
             }
@@ -67,14 +80,27 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             console.log('📊 Step 3: Creating event status...');
             const statusPayload = {
                 event_id: event.event_id,
-                event_name: data.name,  // Add event_name - required field in event_status table
+                event_name: data.name,
+                invitation_send_date: data.invitation_send_date,
+                client_confirmation_received: true,
+                invitations_sent_out: false,
+                guest_list_received: data.guests?.length > 0,
+                // RSVP Reminder Settings
+                rsvp_reminder_count: data.rsvp_reminder_count,
+                rsvp_reminder_date_1: data.rsvp_reminder_date_1,
+                rsvp_reminder_date_2: data.rsvp_reminder_date_2 || null,
+                rsvp_reminder_date_3: data.rsvp_reminder_date_3 || null,
+                rsvp_reminder_stage: 'not started',
+                rsvp_same_message_for_all: data.rsvp_same_message_for_all,
+                rsvp_reminder_message_default: data.rsvp_reminder_message_default,
+                rsvp_reminder_message_1: data.rsvp_reminder_message_1 || null,
+                rsvp_reminder_message_2: data.rsvp_reminder_message_2 || null,
+                rsvp_reminder_message_3: data.rsvp_reminder_message_3 || null,
+                // Stats
                 total_guests: data.guests?.length || 0,
                 total_confirmed: 0,
                 total_pending: data.guests?.length || 0,
                 total_declined: 0,
-                invitations_sent_out: false,
-                rsvp_reminder_stage: 0,
-                rsvp_reminder_date: data.rsvp_reminder_date
             };
             
             console.log('Status payload:', statusPayload);
@@ -98,7 +124,6 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                 hint: error.hint,
             });
             
-            // Set user-friendly error message
             let errorMsg = "Failed to create event. ";
             if (error.message) {
                 errorMsg += error.message;
@@ -145,13 +170,42 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                             <p className="font-medium">{data.name}</p>
                         </div>
                         <div>
-                            <p className="text-slate-500">Date & Time</p>
-                            <p className="font-medium">{data.date ? format(new Date(data.date), 'PPP p') : '-'}</p>
+                            <p className="text-slate-500">Date</p>
+                            <p className="font-medium">{data.date ? format(new Date(data.date), 'PPP') : '-'}</p>
+                        </div>
+                        <div>
+                            <p className="text-slate-500">Time</p>
+                            <p className="font-medium">
+                                {data.start_time || '-'}
+                                {data.end_time && ` - ${data.end_time}`}
+                                {data.chuppah_start_time && ` (Chuppah: ${data.chuppah_start_time})`}
+                            </p>
                         </div>
                         <div>
                             <p className="text-slate-500">Venue</p>
                             <p className="font-medium">{data.venue}</p>
                         </div>
+                        {data.dress_code && (
+                            <div>
+                                <p className="text-slate-500">Dress Code</p>
+                                <p className="font-medium">{data.dress_code}</p>
+                            </div>
+                        )}
+                        {data.location_map && (
+                            <div>
+                                <p className="text-slate-500">Map Link</p>
+                                <a href={data.location_map} target="_blank" rel="noopener noreferrer" 
+                                   className="font-medium text-emerald-600 hover:underline text-xs break-all">
+                                    {data.location_map.substring(0, 40)}...
+                                </a>
+                            </div>
+                        )}
+                        {data.special_notes && (
+                            <div>
+                                <p className="text-slate-500">Special Notes</p>
+                                <p className="font-medium text-xs">{data.special_notes}</p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -179,7 +233,7 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     </CardContent>
                 </Card>
 
-                {/* Message Preview */}
+                {/* Invitation */}
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg font-medium flex items-center gap-2">
@@ -188,9 +242,9 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
-                         <div>
+                        <div>
                             <p className="text-slate-500 mb-1">Message</p>
-                            <p className="bg-slate-50 p-3 rounded-md italic text-slate-700 border">
+                            <p className="bg-slate-50 p-3 rounded-md italic text-slate-700 border text-xs">
                                 "{data.invitation_message}"
                             </p>
                         </div>
@@ -203,22 +257,46 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     </CardContent>
                 </Card>
 
-                {/* Schedule */}
+                {/* Schedule & Reminders */}
                 <Card>
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg font-medium flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-emerald-500" />
-                            Schedule
+                            <Bell className="w-5 h-5 text-emerald-500" />
+                            Schedule & Reminders
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
                         <div>
                             <p className="text-slate-500">Send Invitations</p>
-                            <p className="font-medium">{data.invitation_send_date ? format(new Date(data.invitation_send_date), 'PPP p') : '-'}</p>
+                            <p className="font-medium">
+                                {data.invitation_send_date ? format(new Date(data.invitation_send_date), 'PPP') : '-'}
+                            </p>
                         </div>
-                        <div>
-                            <p className="text-slate-500">Send RSVP Reminder</p>
-                            <p className="font-medium">{data.rsvp_reminder_date ? format(new Date(data.rsvp_reminder_date), 'PPP p') : '-'}</p>
+                        <div className="border-t pt-2">
+                            <p className="text-slate-500">RSVP Reminders ({data.rsvp_reminder_count})</p>
+                            <div className="space-y-1 mt-1">
+                                <p className="font-medium text-xs">
+                                    1st: {data.rsvp_reminder_date_1 ? format(new Date(data.rsvp_reminder_date_1), 'PPP') : '-'}
+                                </p>
+                                {data.rsvp_reminder_count >= 2 && data.rsvp_reminder_date_2 && (
+                                    <p className="font-medium text-xs">
+                                        2nd: {format(new Date(data.rsvp_reminder_date_2), 'PPP')}
+                                    </p>
+                                )}
+                                {data.rsvp_reminder_count >= 3 && data.rsvp_reminder_date_3 && (
+                                    <p className="font-medium text-xs">
+                                        3rd: {format(new Date(data.rsvp_reminder_date_3), 'PPP')}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <div className="border-t pt-2">
+                            <p className="text-slate-500">Reminder Message</p>
+                            <p className="bg-slate-50 p-2 rounded text-xs mt-1 whitespace-pre-wrap">
+                                {data.rsvp_same_message_for_all 
+                                    ? data.rsvp_reminder_message_default 
+                                    : data.rsvp_reminder_message_1}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>

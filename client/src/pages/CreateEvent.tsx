@@ -10,23 +10,47 @@ import StepReview from '@/components/create-event/StepReview';
 const STEPS = ['Basic Info', 'Invitation', 'Guests', 'Scheduling', 'Review'];
 
 interface FormData {
+    // Basic Info
     name: string;
     date: string;
     venue: string;
+    start_time: string;
+    end_time: string;
+    chuppah_start_time: string;
+    dress_code: string;
+    location_map: string;
+    special_notes: string;
+    // Invitation
     invitation_message: string;
     invitation_image_url: string;
+    // Guests
     guests: any[];
+    // Scheduling
     invitation_send_date: string;
-    rsvp_reminder_date: string;
+    rsvp_reminder_count: number;
+    rsvp_reminder_date_1: string;
+    rsvp_reminder_date_2: string;
+    rsvp_reminder_date_3: string;
+    rsvp_same_message_for_all: boolean;
+    rsvp_reminder_message_default: string;
+    rsvp_reminder_message_1: string;
+    rsvp_reminder_message_2: string;
+    rsvp_reminder_message_3: string;
 }
 
 export default function CreateEvent() {
     const [currentStep, setCurrentStep] = useState(0);
     const [formData, setFormData] = useState<FormData>({
-        // Basic
+        // Basic Info
         name: '',
         date: '',
         venue: '',
+        start_time: '',
+        end_time: '',
+        chuppah_start_time: '',
+        dress_code: '',
+        location_map: '',
+        special_notes: '',
         // Invitation
         invitation_message: "You're invited to celebrate with us!",
         invitation_image_url: '',
@@ -34,7 +58,15 @@ export default function CreateEvent() {
         guests: [],
         // Scheduling
         invitation_send_date: '',
-        rsvp_reminder_date: '',
+        rsvp_reminder_count: 1,
+        rsvp_reminder_date_1: '',
+        rsvp_reminder_date_2: '',
+        rsvp_reminder_date_3: '',
+        rsvp_same_message_for_all: true,
+        rsvp_reminder_message_default: "Hi! Just a friendly reminder to RSVP. Please reply:\n1️⃣ Coming\n2️⃣ Not Coming\n3️⃣ Ask Me Later",
+        rsvp_reminder_message_1: '',
+        rsvp_reminder_message_2: '',
+        rsvp_reminder_message_3: '',
     });
 
     const updateFormData = (data: Partial<FormData>) => {

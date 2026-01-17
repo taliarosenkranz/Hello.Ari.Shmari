@@ -31,18 +31,40 @@ Now correctly uses `invitations_sent_out` column name.
 ## Database Column Names (Confirmed)
 
 ### guests table:
-- ✅ `invitations_sent_out` (BOOLEAN) - Whether invitation was sent to this guest
-- ✅ `invitation_received` (BOOLEAN) - Whether guest received invitation
-- ✅ `invitation_sent_date` (TIMESTAMPTZ) - When invitation was sent
+- ✅ `guest_id` (UUID, primary key)
+- ✅ `event_id` (UUID, foreign key)
+- ✅ `name` (TEXT, required)
+- ✅ `phone_number` (TEXT, required)
+- ✅ `rsvp_status` (TEXT, default 'pending')
+- ✅ `messaging_preference` (TEXT, default 'whatsapp')
+- ✅ `invitation_received` (BOOLEAN, optional) - Whether guest received invitation
+- ✅ `created_date` (TIMESTAMPTZ)
+- ✅ `updated_date` (TIMESTAMPTZ)
+
+**Note:** `invitations_sent_out` is NOT in guests table - it belongs to event_status!
 
 ### events table:
+- ✅ `event_id` (UUID, primary key)
+- ✅ `user_id` (UUID, foreign key to auth.users)
+- ✅ `name` (TEXT, required)
+- ✅ `date` (TIMESTAMPTZ)
+- ✅ `venue` (TEXT)
 - ✅ `dress_code` (TEXT, nullable) - Optional dress code
 - ✅ `start_time` (TIME) - Event start time
 - ✅ `end_time` (TIME) - Event end time
+- ✅ `invitation_message` (TEXT)
 
 ### event_status table:
-- ✅ `invitations_sent_out` (BOOLEAN) - Whether invitations have been sent
+- ✅ `status_id` (UUID, primary key)
+- ✅ `event_id` (UUID, foreign key)
+- ✅ `invitations_sent_out` (BOOLEAN) - Whether invitations have been sent for this event
 - ✅ `invitations_sent` (INTEGER) - Count of sent invitations
+- ✅ `total_guests` (INTEGER)
+- ✅ `total_confirmed` (INTEGER)
+- ✅ `total_pending` (INTEGER)
+- ✅ `total_declined` (INTEGER)
+- ✅ `rsvp_reminder_stage` (INTEGER)
+- ✅ `rsvp_reminder_date` (TIMESTAMPTZ)
 
 ## Next Steps
 

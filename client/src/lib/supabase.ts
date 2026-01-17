@@ -25,12 +25,14 @@ export interface Event {
   venue: string;
   start_time?: string;
   end_time?: string;
+  chuppah_start_time?: string;
   dress_code?: string;
   location_map?: string;
   special_notes?: string;
   invitation_message?: string;
-  created_date?: string;
-  user_id?: string; // For RLS - will be added in Step 7
+  invitation_image_url?: string;
+  created_at?: string;
+  user_id?: string;
 }
 
 export interface Guest {
@@ -46,17 +48,30 @@ export interface Guest {
 }
 
 export interface EventStatus {
-  status_id: string;
-  event_id: string;
-  event_name: string;  // Required field in database
-  total_guests: number;
-  total_confirmed: number;
-  total_pending: number;
-  total_declined: number;
+  event_id: number;
+  event_name: string;
+  // Scheduling
+  invitation_send_date?: string;
+  client_confirmation_received?: boolean;
   invitations_sent_out?: boolean;
-  rsvp_reminder_stage?: number;
-  rsvp_reminder_date?: string;
-  last_updated?: string;
+  guest_list_received?: boolean;
+  // RSVP Reminders
+  rsvp_reminder_count?: number;
+  rsvp_reminder_date_1?: string;
+  rsvp_reminder_date_2?: string;
+  rsvp_reminder_date_3?: string;
+  rsvp_reminder_stage?: string;
+  // RSVP Messages
+  rsvp_same_message_for_all?: boolean;
+  rsvp_reminder_message_default?: string;
+  rsvp_reminder_message_1?: string;
+  rsvp_reminder_message_2?: string;
+  rsvp_reminder_message_3?: string;
+  // Stats
+  total_guests?: number;
+  total_confirmed?: number;
+  total_pending?: number;
+  total_declined?: number;
 }
 
 export interface Message {

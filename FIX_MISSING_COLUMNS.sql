@@ -20,19 +20,14 @@ ADD COLUMN IF NOT EXISTS end_time TIME;
 -- GUESTS TABLE FIXES
 -- ============================================
 
--- 3. Ensure invitations_sent_out column exists (tracks if invitation was sent to this guest)
-ALTER TABLE guests 
-ADD COLUMN IF NOT EXISTS invitations_sent_out BOOLEAN DEFAULT false;
+-- NOTE: invitations_sent_out belongs to event_status table, NOT guests table!
+-- Guests table only tracks individual guest information
 
--- 4. Make sure invitation_received exists
+-- 3. Make sure invitation_received exists (optional per-guest tracking)
 ALTER TABLE guests 
 ADD COLUMN IF NOT EXISTS invitation_received BOOLEAN DEFAULT false;
 
--- 5. Add invitation_sent_date column
-ALTER TABLE guests 
-ADD COLUMN IF NOT EXISTS invitation_sent_date TIMESTAMPTZ;
-
--- 6. Ensure messaging_preference has a default
+-- 4. Ensure messaging_preference has a default
 ALTER TABLE guests 
 ALTER COLUMN messaging_preference SET DEFAULT 'whatsapp';
 
