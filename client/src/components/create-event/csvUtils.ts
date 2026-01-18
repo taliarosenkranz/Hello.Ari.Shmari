@@ -47,8 +47,16 @@ export function parseCSV(csvContent: string): ParsedGuest[] {
           guest.email = value;
           break;
         case 'messaging_preference':
+        case 'messaging preference':
         case 'preference':
-          guest.messaging_preference = value?.toLowerCase() === 'whatsapp' ? 'whatsapp' : 'sms';
+        case 'contact_preference':
+        case 'contact preference':
+          // Default to 'sms' if not specified or invalid
+          if (value?.toLowerCase() === 'whatsapp') {
+            guest.messaging_preference = 'whatsapp';
+          } else {
+            guest.messaging_preference = 'sms';
+          }
           break;
         case 'plus_one':
         case 'plus_one_allowed':
@@ -113,8 +121,8 @@ export function validateEmail(email: string): boolean {
  * Generate CSV template for guest list
  */
 export function generateCSVTemplate(): string {
-  const headers = ['name', 'phone', 'email', 'messaging_preference', 'plus_one_allowed', 'dietary_restrictions'];
-  const exampleRow = ['John Doe', '+1234567890', 'john@example.com', 'whatsapp', 'true', 'Vegetarian'];
+  const headers = ['name', 'phone_number', 'email', 'messaging_preference', 'plus_one_allowed', 'dietary_restrictions'];
+  const exampleRow = ['John Doe', '+1234567890', 'john@example.com', 'sms', 'true', 'Vegetarian'];
   
   return [headers.join(','), exampleRow.join(',')].join('\n');
 }
