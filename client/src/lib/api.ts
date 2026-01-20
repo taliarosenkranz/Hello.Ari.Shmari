@@ -137,8 +137,7 @@ export const guests = {
       const { data, error } = await supabase
         .from('guests')
         .select('*')
-        .eq('event_id', eventId)
-        .order('created_date', { ascending: false });
+        .eq('event_id', eventId);
 
       if (error) throw error;
       return data as Guest[];
@@ -307,11 +306,8 @@ export const eventStatus = {
 // ==================== MESSAGES ====================
 
 export interface MessageWithGuest extends Message {
-  guests: {
-    name: string;
-    phone_number: string;
-    event_id: string;
-  };
+  guest_name?: string;
+  guest_phone?: string;
 }
 
 export const messages = {
@@ -335,18 +331,18 @@ export const messages = {
   },
 
   /**
-   * Get all messages for an event (with guest info)
+   * Get all messages for an event (uses event_id column on messages table)
    */
   async listForEvent(eventId: string) {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*, guests!inner(name, phone_number, event_id)')
-        .eq('guests.event_id', eventId)
+        .select('*')
+        .eq('event_id', eventId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as MessageWithGuest[];
+      return data as Message[];
     } catch (error) {
       console.error('Error fetching event messages:', error);
       throw error;
@@ -360,13 +356,13 @@ export const messages = {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*, guests(name, phone_number)')
+        .select('*')
         .eq('needs_human_followup', true)
         .eq('followup_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Message[];
     } catch (error) {
       console.error('Error fetching followup messages:', error);
       throw error;
@@ -380,14 +376,14 @@ export const messages = {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*, guests!inner(name, phone_number, event_id)')
-        .eq('guests.event_id', eventId)
+        .select('*')
+        .eq('event_id', eventId)
         .eq('needs_human_followup', true)
         .eq('followup_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as MessageWithGuest[];
+      return data as Message[];
     } catch (error) {
       console.error('Error fetching event followup messages:', error);
       throw error;

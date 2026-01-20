@@ -2,10 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Clock, MessageSquare, User, Phone } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, MessageWithGuest } from '@/lib/api';
+import { api } from '@/lib/api';
+import { Message } from '@/lib/supabase';
 
 interface MessagesAttentionProps {
   eventId: string;
@@ -92,28 +93,15 @@ export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
           </div>
         ) : (
           <div className="space-y-4 max-h-96 overflow-y-auto">
-            {messages.map((msg: MessageWithGuest) => (
+            {messages.map((msg: Message) => (
               <div
                 key={msg.message_id}
                 className="p-4 bg-amber-50 border border-amber-200 rounded-lg"
               >
-                {/* Guest Info */}
-                <div className="flex items-center gap-2 mb-2">
-                  <User className="w-4 h-4 text-slate-500" />
-                  <span className="font-medium text-slate-900">{msg.guests?.name || 'Unknown Guest'}</span>
-                  {msg.guests?.phone_number && (
-                    <>
-                      <span className="text-slate-300">|</span>
-                      <Phone className="w-3 h-3 text-slate-400" />
-                      <span className="text-xs text-slate-500">{msg.guests.phone_number}</span>
-                    </>
-                  )}
-                </div>
-
                 {/* Original Message */}
                 <div className="mb-3">
                   <div className="flex items-start gap-2">
-                    <MessageSquare className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                    <MessageSquare className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                     <div>
                       <p className="text-sm text-slate-700 bg-white p-2 rounded border border-slate-200">
                         "{msg.message}"
