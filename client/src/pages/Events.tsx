@@ -4,10 +4,24 @@ import { createPageUrl } from '@/lib/pageUtils';
 import { api } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Plus, Calendar, MapPin, Loader2 } from "lucide-react";
-import { format } from 'date-fns';
+import { format, isPast, isToday, parseISO } from 'date-fns';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
+
+function getEventStatus(eventDate: string | null) {
+    if (!eventDate) return { label: 'No Date', className: 'bg-slate-100 text-slate-600' };
+    
+    const date = parseISO(eventDate);
+    
+    if (isToday(date)) {
+        return { label: 'Today', className: 'bg-amber-100 text-amber-700' };
+    }
+    if (isPast(date)) {
+        return { label: 'Past', className: 'bg-slate-100 text-slate-600' };
+    }
+    return { label: 'Upcoming', className: 'bg-emerald-50 text-emerald-700' };
+}
 
 export default function Events() {
     const { data: events, isLoading, error } = useQuery({
@@ -74,9 +88,14 @@ export default function Events() {
                                         <CardTitle className="font-serif text-xl group-hover:text-emerald-600 transition-colors">
                                             {event.name}
                                         </CardTitle>
-                                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
-                                            Active
-                                        </Badge>
+                                        {(() => {
+                                            const status = getEventStatus(event.date);
+                                            return (
+                                                <Badge variant="secondary" className={status.className}>
+                                                    {status.label}
+                                                </Badge>
+                                            );
+                                        })()}
                                     </div>
                                 </CardHeader>
                                 <CardContent className="space-y-3 text-sm text-slate-500">
