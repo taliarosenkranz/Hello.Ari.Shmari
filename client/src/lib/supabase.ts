@@ -19,7 +19,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // TypeScript types matching your database schema
 export interface Event {
-  event_id: string;
+  event_id: number;  // Primary key (integer)
   name: string;
   date: string;
   venue: string;
