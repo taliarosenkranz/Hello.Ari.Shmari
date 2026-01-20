@@ -18,7 +18,17 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
         const matchesSearch = 
             guest.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
             guest.phone_number.includes(searchTerm);
-        const matchesStatus = statusFilter === 'all' || guest.rsvp_status === statusFilter;
+        
+        // Handle status filtering - treat null/empty as pending
+        let matchesStatus = false;
+        if (statusFilter === 'all') {
+            matchesStatus = true;
+        } else if (statusFilter === 'pending') {
+            matchesStatus = !guest.rsvp_status || guest.rsvp_status === 'pending';
+        } else {
+            matchesStatus = guest.rsvp_status === statusFilter;
+        }
+        
         const matchesChannel = channelFilter === 'all' || guest.messaging_preference === channelFilter;
         
         return matchesSearch && matchesStatus && matchesChannel;
@@ -47,11 +57,14 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
         document.body.removeChild(link);
     };
 
-    const getStatusBadge = (status: string) => {
+    const getStatusBadge = (status: string | undefined | null) => {
         switch(status) {
-            case 'attending': return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Coming</Badge>;
-            case 'declined': return <Badge className="bg-red-100 text-red-700 hover:bg-red-200">Declined</Badge>;
-            default: return <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>;
+            case 'confirmed':
+                return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200">Confirmed</Badge>;
+            case 'declined':
+                return <Badge className="bg-red-100 text-red-700 hover:bg-red-200">Declined</Badge>;
+            default:
+                return <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>;
         }
     };
 
@@ -89,8 +102,8 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="attending">Coming</SelectItem>
-                            <SelectItem value="declined">Not Coming</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="declined">Declined</SelectItem>
                             <SelectItem value="pending">Pending</SelectItem>
                         </SelectContent>
                     </Select>

@@ -17,11 +17,11 @@ export default function ActivityFeed({ guests }) {
                 color: 'text-blue-500 bg-blue-50'
             });
         }
-        if (g.rsvp_status === 'attending') {
+        if (g.rsvp_status === 'confirmed') {
             activities.push({
-                type: 'rsvp_attending',
-                text: `${g.name} is coming!`,
-                time: g.updated_date, // This is likely the most recent update
+                type: 'rsvp_confirmed',
+                text: `${g.name} confirmed!`,
+                time: null, // guests table doesn't have updated_date
                 icon: UserCheck,
                 color: 'text-emerald-500 bg-emerald-50'
             });

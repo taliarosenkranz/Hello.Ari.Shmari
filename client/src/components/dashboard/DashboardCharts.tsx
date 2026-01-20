@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 const COLORS = {
-    attending: '#10b981', // emerald-500
+    confirmed: '#10b981', // emerald-500
     declined: '#ef4444',  // red-500
     pending: '#f59e0b'    // amber-500
 };
@@ -14,11 +14,11 @@ const CHANNEL_COLORS = {
 };
 
 export default function DashboardCharts({ guests }) {
-    // RSVP Breakdown Data
+    // RSVP Breakdown Data - treat null/empty as pending
     const rsvpData = [
-        { name: 'Confirmed', value: guests.filter(g => g.rsvp_status === 'attending').length, color: COLORS.attending },
+        { name: 'Confirmed', value: guests.filter(g => g.rsvp_status === 'confirmed').length, color: COLORS.confirmed },
         { name: 'Declined', value: guests.filter(g => g.rsvp_status === 'declined').length, color: COLORS.declined },
-        { name: 'Pending', value: guests.filter(g => g.rsvp_status === 'pending').length, color: COLORS.pending },
+        { name: 'Pending', value: guests.filter(g => !g.rsvp_status || g.rsvp_status === 'pending').length, color: COLORS.pending },
     ].filter(d => d.value > 0);
 
     // Channel Split Data

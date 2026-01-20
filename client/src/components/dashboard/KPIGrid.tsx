@@ -18,7 +18,7 @@ interface KPIGridProps {
 export default function KPIGrid({ guests, eventStatus, messagesNeedingAttention = 0 }: KPIGridProps) {
     const totalGuests = guests.length;
     const invitationsSent = guests.filter(g => g.invitation_received).length;
-    const confirmed = guests.filter(g => g.rsvp_status === 'attending' || g.rsvp_status === 'confirmed').length;
+    const confirmed = guests.filter(g => g.rsvp_status === 'confirmed').length;
     const declined = guests.filter(g => g.rsvp_status === 'declined').length;
     const pending = guests.filter(g => g.rsvp_status === 'pending' || !g.rsvp_status).length;
     

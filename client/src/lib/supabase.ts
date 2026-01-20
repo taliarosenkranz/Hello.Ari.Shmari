@@ -40,7 +40,7 @@ export interface Guest {
   event_id: number;
   name: string;
   phone_number: string;
-  rsvp_status: 'pending' | 'confirmed' | 'declined' | 'maybe' | 'attending';
+  rsvp_status: 'pending' | 'confirmed' | 'declined';
   messaging_preference: 'whatsapp' | 'sms';
   invitation_received?: boolean;
 }
