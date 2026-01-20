@@ -13,6 +13,7 @@ import DashboardCharts from '@/components/dashboard/DashboardCharts';
 import TimelineStrip from '@/components/dashboard/TimelineStrip';
 import GuestTable from '@/components/dashboard/GuestTable';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
+import MessagesAttention from '@/components/dashboard/MessagesAttention';
 
 export default function EventDashboard() {
     const [location] = useLocation();
@@ -110,6 +111,9 @@ export default function EventDashboard() {
                 <div className="grid lg:grid-cols-3 gap-8">
                     {/* Main Column (Left 2/3) */}
                     <div className="lg:col-span-2 space-y-8">
+                        {/* Messages Needing Attention - Prominent placement */}
+                        {eventId && <MessagesAttention eventId={eventId} />}
+                        
                         {/* Charts */}
                         <div className="h-80">
                              <DashboardCharts guests={guests} />

@@ -306,6 +306,14 @@ export const eventStatus = {
 
 // ==================== MESSAGES ====================
 
+export interface MessageWithGuest extends Message {
+  guests: {
+    name: string;
+    phone_number: string;
+    event_id: string;
+  };
+}
+
 export const messages = {
   /**
    * Get all messages for a guest
@@ -327,7 +335,26 @@ export const messages = {
   },
 
   /**
-   * Get messages needing human followup
+   * Get all messages for an event (with guest info)
+   */
+  async listForEvent(eventId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*, guests!inner(name, phone_number, event_id)')
+        .eq('guests.event_id', eventId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as MessageWithGuest[];
+    } catch (error) {
+      console.error('Error fetching event messages:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get messages needing human followup (all events)
    */
   async getFollowupNeeded() {
     try {
@@ -347,6 +374,47 @@ export const messages = {
   },
 
   /**
+   * Get messages needing human followup for a specific event
+   */
+  async getFollowupNeededForEvent(eventId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*, guests!inner(name, phone_number, event_id)')
+        .eq('guests.event_id', eventId)
+        .eq('needs_human_followup', true)
+        .eq('followup_status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as MessageWithGuest[];
+    } catch (error) {
+      console.error('Error fetching event followup messages:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Mark a message as resolved (no longer needs human followup)
+   */
+  async resolveMessage(messageId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .update({ followup_status: 'resolved' })
+        .eq('message_id', messageId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Message;
+    } catch (error) {
+      console.error('Error resolving message:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Insert a new message (matches Python backend function)
    */
   async create(messageData: Partial<Message>) {
@@ -361,6 +429,31 @@ export const messages = {
       return data as Message;
     } catch (error) {
       console.error('Error creating message:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get message statistics for an event
+   */
+  async getStatsForEvent(eventId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('needs_human_followup, followup_status, guests!inner(event_id)')
+        .eq('guests.event_id', eventId);
+
+      if (error) throw error;
+
+      const stats = {
+        total: data?.length || 0,
+        needingAttention: data?.filter(m => m.needs_human_followup && m.followup_status === 'pending').length || 0,
+        resolved: data?.filter(m => m.followup_status === 'resolved').length || 0,
+      };
+
+      return stats;
+    } catch (error) {
+      console.error('Error fetching message stats:', error);
       throw error;
     }
   }
