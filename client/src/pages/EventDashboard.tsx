@@ -1,6 +1,6 @@
 import { api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { createPageUrl } from '@/lib/pageUtils';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,9 @@ import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import MessagesAttention from '@/components/dashboard/MessagesAttention';
 
 export default function EventDashboard() {
-    const [location] = useLocation();
-    const searchParams = new URLSearchParams(location.split('?')[1]);
+    // useLocation() from wouter only returns pathname, not query string
+    // Use window.location.search to get query parameters
+    const searchParams = new URLSearchParams(window.location.search);
     const eventId = searchParams.get('id');
 
     const { data: event, isLoading: isEventLoading } = useQuery({
