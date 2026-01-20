@@ -12,7 +12,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 export default function Events() {
     const { data: events, isLoading, error } = useQuery({
         queryKey: ['events'],
-        queryFn: () => api.events.list({ sort: { created_date: -1 } }),
+        queryFn: () => api.events.list({ sort: { created_at: -1 } }),
     });
 
     if (isLoading) {

@@ -23,7 +23,7 @@ export const events = {
         const [field, order] = Object.entries(options.sort)[0];
         query = query.order(field, { ascending: order === 1 });
       } else {
-        query = query.order('created_date', { ascending: false });
+        query = query.order('created_at', { ascending: false });
       }
 
       const { data, error } = await query;
