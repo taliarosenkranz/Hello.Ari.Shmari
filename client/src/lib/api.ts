@@ -358,7 +358,6 @@ export const messages = {
         .from('messages')
         .select('*')
         .eq('needs_human_followup', true)
-        .eq('followup_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -379,7 +378,6 @@ export const messages = {
         .select('*')
         .eq('event_id', eventId)
         .eq('needs_human_followup', true)
-        .eq('followup_status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -397,7 +395,7 @@ export const messages = {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .update({ followup_status: 'resolved' })
+        .update({ needs_human_followup: false })
         .eq('message_id', messageId)
         .select()
         .single();
@@ -436,15 +434,14 @@ export const messages = {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('needs_human_followup, followup_status, guests!inner(event_id)')
-        .eq('guests.event_id', eventId);
+        .select('needs_human_followup')
+        .eq('event_id', eventId);
 
       if (error) throw error;
 
       const stats = {
         total: data?.length || 0,
-        needingAttention: data?.filter(m => m.needs_human_followup && m.followup_status === 'pending').length || 0,
-        resolved: data?.filter(m => m.followup_status === 'resolved').length || 0,
+        needingAttention: data?.filter(m => m.needs_human_followup).length || 0,
       };
 
       return stats;

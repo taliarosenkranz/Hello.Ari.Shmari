@@ -36,15 +36,13 @@ export interface Event {
 }
 
 export interface Guest {
-  guest_id: string;
-  event_id: string;
+  guest_id: number;
+  event_id: number;
   name: string;
   phone_number: string;
   rsvp_status: 'pending' | 'confirmed' | 'declined' | 'maybe' | 'attending';
   messaging_preference: 'whatsapp' | 'sms';
   invitation_received?: boolean;
-  updated_date?: string;
-  created_date?: string;
 }
 
 export interface EventStatus {
@@ -80,7 +78,6 @@ export interface Message {
   message: string;
   response?: string;
   needs_human_followup: boolean;
-  followup_status?: 'pending' | 'resolved';
   created_at?: string;
 }
 
