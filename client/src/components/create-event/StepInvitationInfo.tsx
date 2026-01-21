@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, ImageIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Upload, ImageIcon, Sparkles, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface StepInvitationProps {
     data: any;
@@ -13,8 +14,33 @@ interface StepInvitationProps {
 }
 
 export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepInvitationProps) {
-    const [message, setMessage] = useState(data.invitation_message);
+    const [message, setMessage] = useState(data.invitation_message || "You're invited to celebrate with us!");
     const [image, setImage] = useState(data.invitation_image_url);
+
+    const placeholders = [
+        { key: '{guest_name}', label: 'Guest Name', example: 'Sarah' },
+        { key: '{event_name}', label: 'Event Name', example: data.name || 'Wedding Celebration' },
+        { key: '{date}', label: 'Event Date', example: data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'January 20, 2026' },
+        { key: '{venue}', label: 'Venue', example: data.venue || 'Grand Ballroom' },
+    ];
+
+    const insertPlaceholder = (placeholder: string) => {
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+            const start = textarea.selectionStart || 0;
+            const end = textarea.selectionEnd || 0;
+            const newMessage = message.substring(0, start) + placeholder + message.substring(end);
+            setMessage(newMessage);
+            // Focus back on textarea and set cursor position
+            setTimeout(() => {
+                textarea.focus();
+                const newPosition = start + placeholder.length;
+                textarea.setSelectionRange(newPosition, newPosition);
+            }, 0);
+        } else {
+            setMessage(message + placeholder);
+        }
+    };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -31,24 +57,68 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
         onNext();
     };
 
+    // Generate preview message with sample values
+    const getPreviewMessage = () => {
+        return message
+            .replace('{guest_name}', 'Sarah')
+            .replace('{event_name}', data.name || 'Wedding Celebration')
+            .replace('{date}', data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'January 20, 2026')
+            .replace('{venue}', data.venue || 'Grand Ballroom');
+    };
+
     return (
         <div className="grid md:grid-cols-2 gap-8">
             <Card>
                 <CardHeader>
                     <CardTitle>Invitation Content</CardTitle>
+                    <CardDescription>Customize your invitation message for guests</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <Label>Invitation Message</Label>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="invitation-message">Invitation Message</Label>
+                            <Badge variant="outline" className="text-xs">
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                Personalize with placeholders
+                            </Badge>
+                        </div>
                         <Textarea 
+                            id="invitation-message"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Enter your invitation message..."
-                            className="min-h-[150px]"
+                            placeholder="You're invited to celebrate with us! {guest_name}, join us for {event_name} on {date} at {venue}."
+                            className="min-h-[150px] font-mono text-sm"
                         />
-                        <p className="text-xs text-slate-500">
-                            Use placeholders like {"{guest_name}"}, {"{event_name}"}, {"{date}"}, {"{venue}"}.
-                        </p>
+                        
+                        {/* Placeholder buttons */}
+                        <div className="space-y-2">
+                            <p className="text-xs font-medium text-slate-600">Click to insert:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {placeholders.map((placeholder) => (
+                                    <Button
+                                        key={placeholder.key}
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => insertPlaceholder(placeholder.key)}
+                                        className="h-8 text-xs font-mono hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700"
+                                    >
+                                        <Plus className="w-3 h-3 mr-1" />
+                                        {placeholder.key}
+                                    </Button>
+                                ))}
+                            </div>
+                            <div className="text-xs text-slate-500 space-y-1 pt-2 border-t">
+                                <p className="font-medium text-slate-600 mb-1">What each placeholder does:</p>
+                                <ul className="space-y-1 ml-4 list-disc">
+                                    {placeholders.map((p) => (
+                                        <li key={p.key}>
+                                            <span className="font-mono font-semibold">{p.key}</span> → "{p.example}"
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="space-y-2">
@@ -100,19 +170,21 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
                     </div>
                     <div className="flex-1 bg-slate-50 p-4 overflow-y-auto">
                         <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%] mb-4">
-                            <p className="text-sm text-slate-800">
-                                {message
-                                    .replace('{guest_name}', 'John Doe')
-                                    .replace('{event_name}', data.name || 'Event Name')
-                                    .replace('{date}', data.date ? new Date(data.date).toLocaleDateString() : 'Date')
-                                    .replace('{venue}', data.venue || 'Venue')
-                                }
+                            <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                {getPreviewMessage()}
                             </p>
                             {image && (
                                 <img src={image} alt="Invitation" className="mt-2 rounded-md w-full" />
                             )}
                             <span className="text-[10px] text-slate-400 mt-1 block text-right">10:42 AM</span>
                         </div>
+                        {message.includes('{') && (
+                            <div className="mt-4 p-2 bg-amber-50 border border-amber-200 rounded-md">
+                                <p className="text-xs text-amber-800">
+                                    <strong>💡 Tip:</strong> This preview shows how your message will look to guests. Each placeholder will be replaced with the actual information for that guest.
+                                </p>
+                            </div>
+                        )}
                     </div>
                     {/* Mock input area */}
                     <div className="p-3 bg-white border-t flex items-center gap-2">
