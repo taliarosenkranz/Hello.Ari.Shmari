@@ -90,19 +90,20 @@ export default function StepBasicInfo({ data, onUpdate, onNext }: StepBasicInfoP
                         <div className="space-y-2">
                             <Label htmlFor="start_time">Start Time *</Label>
                             <Input type="time" id="start_time" {...register('start_time')} />
+                            <p className="text-xs text-slate-500">24-hour format (e.g., 18:00 for 6 PM)</p>
                             {errors.start_time && <p className="text-sm text-red-500">{errors.start_time.message as string}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="chuppah_start_time">Chuppah/Ceremony Time</Label>
                             <Input type="time" id="chuppah_start_time" {...register('chuppah_start_time')} />
-                            <p className="text-xs text-slate-500">Optional</p>
+                            <p className="text-xs text-slate-500">24-hour format (optional)</p>
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="end_time">End Time</Label>
                             <Input type="time" id="end_time" {...register('end_time')} />
-                            <p className="text-xs text-slate-500">Optional</p>
+                            <p className="text-xs text-slate-500">24-hour format (optional)</p>
                         </div>
                     </div>
 
