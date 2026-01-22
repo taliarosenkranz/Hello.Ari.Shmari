@@ -3,7 +3,7 @@ import { createPageUrl } from '@/lib/pageUtils';
 import { api } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageSquare, Clock, CheckCircle2, Loader2, MapPin, Shirt, Bell } from "lucide-react";
+import { Calendar, Users, MessageSquare, CheckCircle2, Loader2, Bell } from "lucide-react";
 import { format } from 'date-fns';
 import { useLocation } from 'wouter';
 
