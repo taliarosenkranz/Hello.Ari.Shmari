@@ -291,36 +291,38 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                             </div>
                         </div>
                         <div className="border-t pt-2">
-                            <p className="text-slate-500">Reminder Message{!data.rsvp_same_message_for_all && 's'}</p>
-                            {data.rsvp_same_message_for_all ? (
-                                <p className="bg-slate-50 p-2 rounded text-xs mt-1 whitespace-pre-wrap">
-                                    {data.rsvp_reminder_message_default}
-                                </p>
-                            ) : (
+                            <p className="text-slate-500">
+                                Reminder Message{data.rsvp_same_message_for_all === false ? 's' : ''}
+                            </p>
+                            {data.rsvp_same_message_for_all === false ? (
                                 <div className="space-y-2 mt-1">
                                     <div>
                                         <p className="text-xs text-slate-500 mb-1">1st Reminder:</p>
                                         <p className="bg-slate-50 p-2 rounded text-xs whitespace-pre-wrap">
-                                            {data.rsvp_reminder_message_1}
+                                            {data.rsvp_reminder_message_1 || '(not set)'}
                                         </p>
                                     </div>
-                                    {data.rsvp_reminder_count >= 2 && data.rsvp_reminder_message_2 && (
+                                    {data.rsvp_reminder_count >= 2 && (
                                         <div>
                                             <p className="text-xs text-slate-500 mb-1">2nd Reminder:</p>
                                             <p className="bg-slate-50 p-2 rounded text-xs whitespace-pre-wrap">
-                                                {data.rsvp_reminder_message_2}
+                                                {data.rsvp_reminder_message_2 || '(not set)'}
                                             </p>
                                         </div>
                                     )}
-                                    {data.rsvp_reminder_count >= 3 && data.rsvp_reminder_message_3 && (
+                                    {data.rsvp_reminder_count >= 3 && (
                                         <div>
                                             <p className="text-xs text-slate-500 mb-1">3rd Reminder:</p>
                                             <p className="bg-slate-50 p-2 rounded text-xs whitespace-pre-wrap">
-                                                {data.rsvp_reminder_message_3}
+                                                {data.rsvp_reminder_message_3 || '(not set)'}
                                             </p>
                                         </div>
                                     )}
                                 </div>
+                            ) : (
+                                <p className="bg-slate-50 p-2 rounded text-xs mt-1 whitespace-pre-wrap">
+                                    {data.rsvp_reminder_message_default || '(not set)'}
+                                </p>
                             )}
                         </div>
                     </CardContent>
