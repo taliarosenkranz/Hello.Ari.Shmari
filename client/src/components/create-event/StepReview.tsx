@@ -3,7 +3,8 @@ import { createPageUrl } from '@/lib/pageUtils';
 import { api } from '@/lib/api';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Users, MessageSquare, CheckCircle2, Loader2, Bell } from "lucide-react";
+import { Calendar, Users, MessageSquare, CheckCircle2, Loader2, Bell, CheckCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { format } from 'date-fns';
 import { useLocation } from 'wouter';
 
@@ -50,13 +51,14 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
             if (data.guests && data.guests.length > 0) {
                 console.log(`👥 Step 2: Creating ${data.guests.length} guests...`);
                 
+                // If RSVP-only mode, mark guests as already having received invitations
                 const guestsPayload = data.guests.map((g: any) => ({
                     name: g.name,
                     phone_number: g.phone_number,
                     messaging_preference: g.messaging_preference || 'sms',
                     event_id: event.event_id,
                     rsvp_status: 'pending' as const,
-                    invitation_received: false,
+                    invitation_received: data.skip_invitations ? true : false,
                 }));
                 
                 console.log('Guest payload sample:', guestsPayload[0]);
@@ -78,12 +80,13 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
 
             // 3. Create Event Status
             console.log('📊 Step 3: Creating event status...');
+            // If RSVP-only mode, mark invitations as already sent
             const statusPayload = {
                 event_id: event.event_id,
                 event_name: data.name,
-                invitation_send_date: data.invitation_send_date,
+                invitation_send_date: data.skip_invitations ? null : data.invitation_send_date,
                 client_confirmation_received: true,
-                invitations_sent_out: false,
+                invitations_sent_out: data.skip_invitations ? true : false,
                 guest_list_received: data.guests?.length > 0,
                 // RSVP Reminder Settings
                 rsvp_reminder_count: data.rsvp_reminder_count,
@@ -233,29 +236,49 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                     </CardContent>
                 </Card>
 
-                {/* Invitation */}
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-lg font-medium flex items-center gap-2">
-                            <MessageSquare className="w-5 h-5 text-emerald-500" />
-                            Invitation
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                        <div>
-                            <p className="text-slate-500 mb-1">Message</p>
-                            <p className="bg-slate-50 p-3 rounded-md italic text-slate-700 border text-xs">
-                                "{data.invitation_message}"
-                            </p>
-                        </div>
-                        {data.invitation_image_url && (
+                {/* Invitation - only show if not skipping invitations */}
+                {!data.skip_invitations ? (
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-lg font-medium flex items-center gap-2">
+                                <MessageSquare className="w-5 h-5 text-emerald-500" />
+                                Invitation
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm">
                             <div>
-                                <p className="text-slate-500 mb-1">Image</p>
-                                <img src={data.invitation_image_url} alt="Invitation" className="h-20 rounded-md object-cover" />
+                                <p className="text-slate-500 mb-1">Message</p>
+                                <p className="bg-slate-50 p-3 rounded-md italic text-slate-700 border text-xs">
+                                    "{data.invitation_message}"
+                                </p>
                             </div>
-                        )}
-                    </CardContent>
-                </Card>
+                            {data.invitation_image_url && (
+                                <div>
+                                    <p className="text-slate-500 mb-1">Image</p>
+                                    <img src={data.invitation_image_url} alt="Invitation" className="h-20 rounded-md object-cover" />
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Card className="border-emerald-200 bg-emerald-50/30">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-lg font-medium flex items-center gap-2">
+                                <CheckCheck className="w-5 h-5 text-emerald-600" />
+                                RSVP Only Mode
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-sm">
+                            <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-300">
+                                Invitations Already Sent
+                            </Badge>
+                            <p className="text-slate-600 mt-3">
+                                You've indicated that invitations were already sent outside of ARI. 
+                                ARI will only send RSVP reminder messages and handle guest responses.
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Schedule & Reminders */}
                 <Card>
@@ -266,13 +289,16 @@ export default function StepReview({ data, onBack }: StepReviewProps) {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
-                        <div>
-                            <p className="text-slate-500">Send Invitations</p>
-                            <p className="font-medium">
-                                {data.invitation_send_date ? format(new Date(data.invitation_send_date), 'PPP') : '-'}
-                            </p>
-                        </div>
-                        <div className="border-t pt-2">
+                        {/* Only show invitation date if not skipping */}
+                        {!data.skip_invitations && (
+                            <div>
+                                <p className="text-slate-500">Send Invitations</p>
+                                <p className="font-medium">
+                                    {data.invitation_send_date ? format(new Date(data.invitation_send_date), 'PPP') : '-'}
+                                </p>
+                            </div>
+                        )}
+                        <div className={data.skip_invitations ? "" : "border-t pt-2"}>
                             <p className="text-slate-500">RSVP Reminders ({data.rsvp_reminder_count})</p>
                             <div className="space-y-1 mt-1">
                                 <p className="font-medium text-xs">

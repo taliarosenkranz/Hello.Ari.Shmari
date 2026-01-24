@@ -26,6 +26,7 @@ interface FormData {
     // Guests
     guests: any[];
     // Scheduling
+    skip_invitations: boolean;  // RSVP-only mode
     invitation_send_date: string;
     rsvp_reminder_count: number;
     rsvp_reminder_date_1: string;
@@ -57,6 +58,7 @@ export default function CreateEvent() {
         // Guests
         guests: [],
         // Scheduling
+        skip_invitations: false,  // RSVP-only mode default is off
         invitation_send_date: '',
         rsvp_reminder_count: 1,
         rsvp_reminder_date_1: '',

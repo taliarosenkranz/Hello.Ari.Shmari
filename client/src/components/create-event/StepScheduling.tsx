@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Bell, MessageSquare } from "lucide-react";
+import { Calendar, Bell, MessageSquare, CheckCircle2 } from "lucide-react";
 
 interface StepSchedulingProps {
     data: any;
@@ -16,6 +16,8 @@ interface StepSchedulingProps {
 }
 
 export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepSchedulingProps) {
+    // RSVP-only mode: user has already sent invitations externally
+    const [skipInvitations, setSkipInvitations] = useState(data.skip_invitations ?? false);
     const [invitationSendDate, setInvitationSendDate] = useState(data.invitation_send_date || '');
     const [reminderCount, setReminderCount] = useState(data.rsvp_reminder_count || 1);
     const [reminderDate1, setReminderDate1] = useState(data.rsvp_reminder_date_1 || '');
@@ -30,8 +32,8 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
     const [message2, setMessage2] = useState(data.rsvp_reminder_message_2 || '');
     const [message3, setMessage3] = useState(data.rsvp_reminder_message_3 || '');
 
-    // Validation
-    const isValid = invitationSendDate && reminderDate1 && 
+    // Validation - invitation date only required if not skipping invitations
+    const isValid = (skipInvitations || invitationSendDate) && reminderDate1 && 
         (sameMessageForAll ? defaultMessage : message1) &&
         (reminderCount < 2 || reminderDate2) &&
         (reminderCount < 3 || reminderDate3) &&
@@ -39,7 +41,8 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
 
     const handleNext = () => {
         onUpdate({
-            invitation_send_date: invitationSendDate,
+            skip_invitations: skipInvitations,
+            invitation_send_date: skipInvitations ? null : invitationSendDate,
             rsvp_reminder_count: reminderCount,
             rsvp_reminder_date_1: reminderDate1,
             rsvp_reminder_date_2: reminderDate2,
@@ -55,30 +58,68 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
 
     return (
         <div className="space-y-6">
-            {/* Invitation Send Date */}
-            <Card>
+            {/* RSVP-Only Mode Toggle */}
+            <Card className={skipInvitations ? "border-emerald-200 bg-emerald-50/50" : ""}>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-emerald-500" />
-                        Invitation Scheduling
+                        <CheckCircle2 className={`w-5 h-5 ${skipInvitations ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        Already Sent Invitations?
                     </CardTitle>
-                    <CardDescription>When should guests receive their invitations?</CardDescription>
+                    <CardDescription>
+                        Choose this if you've already invited your guests through another method
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
-                        <Label htmlFor="invitation_send_date">Send Invitations On *</Label>
-                        <Input 
-                            type="date" 
-                            id="invitation_send_date" 
-                            value={invitationSendDate}
-                            onChange={(e) => setInvitationSendDate(e.target.value)}
+                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                        <div>
+                            <Label className="text-base font-medium">I've already sent invitations</Label>
+                            <p className="text-sm text-slate-500 mt-1">
+                                {skipInvitations 
+                                    ? "ARI will only send RSVP reminders to your guests" 
+                                    : "ARI will send both invitations and RSVP reminders"}
+                            </p>
+                        </div>
+                        <Switch 
+                            checked={skipInvitations}
+                            onCheckedChange={setSkipInvitations}
                         />
-                        <p className="text-xs text-slate-500">
-                            Invitations will be sent automatically on this date at 10:00 AM
-                        </p>
                     </div>
+                    {skipInvitations && (
+                        <div className="mt-3 p-3 bg-emerald-100 rounded-lg">
+                            <p className="text-sm text-emerald-800">
+                                <strong>RSVP-Only Mode:</strong> Your guests will receive RSVP reminder messages on the dates you specify below. They can reply to confirm, decline, or ask questions about your event.
+                            </p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
+
+            {/* Invitation Send Date - Only show if not skipping invitations */}
+            {!skipInvitations && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-emerald-500" />
+                            Invitation Scheduling
+                        </CardTitle>
+                        <CardDescription>When should guests receive their invitations?</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2">
+                            <Label htmlFor="invitation_send_date">Send Invitations On *</Label>
+                            <Input 
+                                type="date" 
+                                id="invitation_send_date" 
+                                value={invitationSendDate}
+                                onChange={(e) => setInvitationSendDate(e.target.value)}
+                            />
+                            <p className="text-xs text-slate-500">
+                                Invitations will be sent automatically on this date at 10:00 AM
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* RSVP Reminders */}
             <Card>
@@ -235,7 +276,7 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
             </Card>
 
             {/* Timeline Preview */}
-            {invitationSendDate && reminderDate1 && data.date && (
+            {((skipInvitations || invitationSendDate) && reminderDate1 && data.date) && (
                 <Card>
                     <CardHeader>
                         <CardTitle>Event Timeline</CardTitle>
@@ -245,22 +286,25 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
                             {/* Connecting Line */}
                             <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2" />
                             
-                            <div className="relative z-10 flex md:flex-col items-center gap-4 md:gap-2">
-                                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm">
-                                    <span className="text-emerald-600 font-bold text-xs">1</span>
+                            {/* Show invitations step only if not skipping */}
+                            {!skipInvitations && (
+                                <div className="relative z-10 flex md:flex-col items-center gap-4 md:gap-2">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm">
+                                        <span className="text-emerald-600 font-bold text-xs">1</span>
+                                    </div>
+                                    <div className="text-left md:text-center">
+                                        <p className="font-medium text-sm">Invitations</p>
+                                        <p className="text-xs text-slate-500">{new Date(invitationSendDate).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
-                                <div className="text-left md:text-center">
-                                    <p className="font-medium text-sm">Invitations</p>
-                                    <p className="text-xs text-slate-500">{new Date(invitationSendDate).toLocaleDateString()}</p>
-                                </div>
-                            </div>
+                            )}
 
                             <div className="relative z-10 flex md:flex-col items-center gap-4 md:gap-2">
                                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border-4 border-white shadow-sm">
-                                    <span className="text-blue-600 font-bold text-xs">2</span>
+                                    <span className="text-blue-600 font-bold text-xs">{skipInvitations ? '1' : '2'}</span>
                                 </div>
                                 <div className="text-left md:text-center">
-                                    <p className="font-medium text-sm">Reminder{reminderCount > 1 ? 's' : ''}</p>
+                                    <p className="font-medium text-sm">RSVP Reminder{reminderCount > 1 ? 's' : ''}</p>
                                     <p className="text-xs text-slate-500">
                                         {new Date(reminderDate1).toLocaleDateString()}
                                         {reminderCount >= 2 && reminderDate2 && `, ${new Date(reminderDate2).toLocaleDateString()}`}
@@ -271,7 +315,7 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
 
                             <div className="relative z-10 flex md:flex-col items-center gap-4 md:gap-2">
                                 <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center border-4 border-white shadow-sm">
-                                    <span className="text-purple-600 font-bold text-xs">3</span>
+                                    <span className="text-purple-600 font-bold text-xs">{skipInvitations ? '2' : '3'}</span>
                                 </div>
                                 <div className="text-left md:text-center">
                                     <p className="font-medium text-sm">Event Day</p>

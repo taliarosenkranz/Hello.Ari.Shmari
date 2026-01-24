@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, ImageIcon, Sparkles, Plus } from "lucide-react";
+import { Upload, ImageIcon, Sparkles, Plus, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface StepInvitationProps {
     data: any;
@@ -67,12 +68,21 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
     };
 
     return (
-        <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Invitation Content</CardTitle>
-                    <CardDescription>Customize your invitation message for guests</CardDescription>
-                </CardHeader>
+        <div className="space-y-6">
+            {/* Info alert for users who already sent invitations */}
+            <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                    <strong>Already sent invitations?</strong> This step is optional. You can skip to the next step and choose "RSVP Only" mode in Scheduling. However, adding event details here helps ARI answer guest questions more accurately.
+                </AlertDescription>
+            </Alert>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Invitation Content</CardTitle>
+                        <CardDescription>Customize your invitation message for guests</CardDescription>
+                    </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
@@ -194,6 +204,7 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
                         <div className="h-8 bg-slate-100 rounded-full flex-1" />
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     );
