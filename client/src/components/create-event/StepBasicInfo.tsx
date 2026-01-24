@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle2, Info } from "lucide-react";
 
 const schema = z.object({
     name: z.string().min(2, "Event name is required"),
@@ -27,6 +30,8 @@ interface StepBasicInfoProps {
 }
 
 export default function StepBasicInfo({ data, onUpdate, onNext }: StepBasicInfoProps) {
+    const [skipInvitations, setSkipInvitations] = useState(data.skip_invitations ?? false);
+    
     const { register, handleSubmit, formState: { errors, isValid } } = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
@@ -43,13 +48,63 @@ export default function StepBasicInfo({ data, onUpdate, onNext }: StepBasicInfoP
         mode: 'onChange'
     });
 
+    const handleToggleChange = (checked: boolean) => {
+        setSkipInvitations(checked);
+        onUpdate({ skip_invitations: checked });
+    };
+
     const onSubmit = (formData: any) => {
-        onUpdate(formData);
+        onUpdate({ ...formData, skip_invitations: skipInvitations });
         onNext();
     };
 
     return (
-        <Card>
+        <div className="space-y-6">
+            {/* RSVP-Only Mode Toggle */}
+            <Card className={skipInvitations ? "border-emerald-200 bg-emerald-50/50" : ""}>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2 className={`w-5 h-5 ${skipInvitations ? 'text-emerald-600' : 'text-slate-400'}`} />
+                        Already Sent Invitations?
+                    </CardTitle>
+                    <CardDescription>
+                        Choose this if you've already invited your guests through another method
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
+                        <div>
+                            <Label className="text-base font-medium">RSVP-Only Mode</Label>
+                            <p className="text-sm text-slate-500 mt-1">
+                                {skipInvitations 
+                                    ? "ARI will only send RSVP reminders to your guests" 
+                                    : "ARI will send both invitations and RSVP reminders"}
+                            </p>
+                        </div>
+                        <Switch 
+                            checked={skipInvitations}
+                            onCheckedChange={handleToggleChange}
+                        />
+                    </div>
+                    {skipInvitations && (
+                        <div className="mt-3 p-3 bg-emerald-100 rounded-lg">
+                            <p className="text-sm text-emerald-800">
+                                <strong>RSVP-Only Mode enabled:</strong> The invitation setup step will be skipped. Your guests will receive RSVP reminder messages on the dates you specify later.
+                            </p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Info alert about optional details */}
+            <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                    <strong>Tip:</strong> Adding optional details (dress code, map link, special notes) helps ARI answer your guests' questions more accurately.
+                </AlertDescription>
+            </Alert>
+
+            <Card>
             <CardHeader>
                 <CardTitle>Event Details</CardTitle>
                 <CardDescription>Tell us about your event</CardDescription>
@@ -150,5 +205,6 @@ export default function StepBasicInfo({ data, onUpdate, onNext }: StepBasicInfoP
                 </form>
             </CardContent>
         </Card>
+        </div>
     );
 }

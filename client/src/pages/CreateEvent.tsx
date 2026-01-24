@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Check } from "lucide-react";
 import DashboardLayout from '@/components/DashboardLayout';
 import StepBasicInfo from '@/components/create-event/StepBasicInfo';
@@ -7,7 +7,8 @@ import StepGuests from '@/components/create-event/StepGuests';
 import StepScheduling from '@/components/create-event/StepScheduling';
 import StepReview from '@/components/create-event/StepReview';
 
-const STEPS = ['Basic Info', 'Invitation', 'Guests', 'Scheduling', 'Review'];
+const STEPS_FULL = ['Basic Info', 'Invitation', 'Guests', 'Scheduling', 'Review'];
+const STEPS_RSVP_ONLY = ['Basic Info', 'Guests', 'Scheduling', 'Review'];
 
 interface FormData {
     // Basic Info
@@ -71,32 +72,57 @@ export default function CreateEvent() {
         rsvp_reminder_message_3: '',
     });
 
+    // Dynamically calculate steps based on RSVP-only mode
+    const steps = useMemo(() => 
+        formData.skip_invitations ? STEPS_RSVP_ONLY : STEPS_FULL
+    , [formData.skip_invitations]);
+
     const updateFormData = (data: Partial<FormData>) => {
         setFormData(prev => ({ ...prev, ...data }));
     };
 
     const nextStep = () => {
-        if (currentStep < STEPS.length - 1) setCurrentStep(prev => prev + 1);
+        if (currentStep < steps.length - 1) setCurrentStep(prev => prev + 1);
     };
 
     const prevStep = () => {
         if (currentStep > 0) setCurrentStep(prev => prev - 1);
     };
 
+    // Map visual step index to actual component
+    // When RSVP-only: [BasicInfo, Guests, Scheduling, Review]
+    // When full flow: [BasicInfo, Invitation, Guests, Scheduling, Review]
     const renderStep = () => {
-        switch (currentStep) {
-            case 0:
-                return <StepBasicInfo data={formData} onUpdate={updateFormData} onNext={nextStep} />;
-            case 1:
-                return <StepInvitation data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
-            case 2:
-                return <StepGuests data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
-            case 3:
-                return <StepScheduling data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
-            case 4:
-                return <StepReview data={formData} onBack={prevStep} />;
-            default:
-                return null;
+        if (formData.skip_invitations) {
+            // RSVP-only mode: skip invitation step
+            switch (currentStep) {
+                case 0:
+                    return <StepBasicInfo data={formData} onUpdate={updateFormData} onNext={nextStep} />;
+                case 1:
+                    return <StepGuests data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
+                case 2:
+                    return <StepScheduling data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
+                case 3:
+                    return <StepReview data={formData} onBack={prevStep} />;
+                default:
+                    return null;
+            }
+        } else {
+            // Full flow with invitation step
+            switch (currentStep) {
+                case 0:
+                    return <StepBasicInfo data={formData} onUpdate={updateFormData} onNext={nextStep} />;
+                case 1:
+                    return <StepInvitation data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
+                case 2:
+                    return <StepGuests data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
+                case 3:
+                    return <StepScheduling data={formData} onUpdate={updateFormData} onNext={nextStep} onBack={prevStep} />;
+                case 4:
+                    return <StepReview data={formData} onBack={prevStep} />;
+                default:
+                    return null;
+            }
         }
     };
 
@@ -107,8 +133,8 @@ export default function CreateEvent() {
             <div className="bg-white border-b border-slate-200 sticky top-16 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-4">
                     <div className="flex items-center justify-between relative">
-                        {STEPS.map((step, index) => (
-                            <div key={index} className="flex flex-col items-center relative z-10">
+                        {steps.map((step, index) => (
+                            <div key={step} className="flex flex-col items-center relative z-10">
                                 <div 
                                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300 ${
                                         index <= currentStep ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'
@@ -125,7 +151,7 @@ export default function CreateEvent() {
                         <div className="absolute top-4 left-0 w-full h-[2px] bg-slate-200 -z-0 transform -translate-y-1/2">
                             <div 
                                 className="h-full bg-emerald-500 transition-all duration-300"
-                                style={{ width: `${(currentStep / (STEPS.length - 1)) * 100}%` }}
+                                style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
                             />
                         </div>
                     </div>

@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Bell, MessageSquare, CheckCircle2 } from "lucide-react";
+import { Calendar, Bell, MessageSquare, CheckCircle2, ImageIcon, Smartphone } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface StepSchedulingProps {
     data: any;
@@ -16,8 +17,8 @@ interface StepSchedulingProps {
 }
 
 export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepSchedulingProps) {
-    // RSVP-only mode: user has already sent invitations externally
-    const [skipInvitations, setSkipInvitations] = useState(data.skip_invitations ?? false);
+    // RSVP-only mode is set in Step 1 (Basic Info)
+    const skipInvitations = data.skip_invitations ?? false;
     const [invitationSendDate, setInvitationSendDate] = useState(data.invitation_send_date || '');
     const [reminderCount, setReminderCount] = useState(data.rsvp_reminder_count || 1);
     const [reminderDate1, setReminderDate1] = useState(data.rsvp_reminder_date_1 || '');
@@ -39,6 +40,18 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
         (reminderCount < 3 || reminderDate3) &&
         (!sameMessageForAll ? (reminderCount < 2 || message2) && (reminderCount < 3 || message3) : true);
 
+    // Get messages for preview
+    const getPreviewMessages = () => {
+        if (sameMessageForAll) {
+            return [{ message: defaultMessage, label: `All ${reminderCount} reminder(s)`, time: '10:00 AM' }];
+        }
+        const messages = [];
+        if (message1) messages.push({ message: message1, label: '1st Reminder', time: '10:00 AM' });
+        if (reminderCount >= 2 && message2) messages.push({ message: message2, label: '2nd Reminder', time: '2:15 PM' });
+        if (reminderCount >= 3 && message3) messages.push({ message: message3, label: '3rd Reminder', time: '6:30 PM' });
+        return messages;
+    };
+
     const handleNext = () => {
         onUpdate({
             skip_invitations: skipInvitations,
@@ -58,41 +71,24 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
 
     return (
         <div className="space-y-6">
-            {/* RSVP-Only Mode Toggle */}
-            <Card className={skipInvitations ? "border-emerald-200 bg-emerald-50/50" : ""}>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <CheckCircle2 className={`w-5 h-5 ${skipInvitations ? 'text-emerald-600' : 'text-slate-400'}`} />
-                        Already Sent Invitations?
-                    </CardTitle>
-                    <CardDescription>
-                        Choose this if you've already invited your guests through another method
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex items-center justify-between p-4 bg-white rounded-lg border">
-                        <div>
-                            <Label className="text-base font-medium">I've already sent invitations</Label>
-                            <p className="text-sm text-slate-500 mt-1">
-                                {skipInvitations 
-                                    ? "ARI will only send RSVP reminders to your guests" 
-                                    : "ARI will send both invitations and RSVP reminders"}
-                            </p>
+            {/* RSVP-Only Mode Indicator */}
+            {skipInvitations && (
+                <Card className="border-emerald-200 bg-emerald-50/50">
+                    <CardContent className="pt-6">
+                        <div className="flex items-center gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                            <div>
+                                <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-300 mb-1">
+                                    RSVP-Only Mode Active
+                                </Badge>
+                                <p className="text-sm text-emerald-800">
+                                    Invitations were already sent. ARI will only send RSVP reminder messages.
+                                </p>
+                            </div>
                         </div>
-                        <Switch 
-                            checked={skipInvitations}
-                            onCheckedChange={setSkipInvitations}
-                        />
-                    </div>
-                    {skipInvitations && (
-                        <div className="mt-3 p-3 bg-emerald-100 rounded-lg">
-                            <p className="text-sm text-emerald-800">
-                                <strong>RSVP-Only Mode:</strong> Your guests will receive RSVP reminder messages on the dates you specify below. They can reply to confirm, decline, or ask questions about your event.
-                            </p>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Invitation Send Date - Only show if not skipping invitations */}
             {!skipInvitations && (
@@ -272,6 +268,69 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
                             )}
                         </div>
                     )}
+                </CardContent>
+            </Card>
+
+            {/* iPhone Message Preview */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Smartphone className="w-5 h-5 text-emerald-500" />
+                        Message Preview
+                    </CardTitle>
+                    <CardDescription>
+                        How your RSVP reminder{reminderCount > 1 ? 's' : ''} will appear to guests
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex justify-center">
+                        <div className="w-[300px] h-[500px] bg-white border-8 border-slate-900 rounded-[3rem] shadow-2xl overflow-hidden relative flex flex-col">
+                            {/* Phone header */}
+                            <div className="bg-slate-100 p-4 border-b text-center text-xs font-medium text-slate-500">
+                                RSVP Reminder Preview
+                            </div>
+                            
+                            {/* Messages area */}
+                            <div className="flex-1 bg-slate-50 p-4 overflow-y-auto space-y-4">
+                                {getPreviewMessages().map((item, index) => (
+                                    <div key={index}>
+                                        {/* Message label */}
+                                        <div className="text-center mb-2">
+                                            <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
+                                                {item.label}
+                                            </span>
+                                        </div>
+                                        {/* Message bubble */}
+                                        <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
+                                            <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                                {item.message || '(Enter your message above)'}
+                                            </p>
+                                            <span className="text-[10px] text-slate-400 mt-1 block text-right">
+                                                {item.time}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {/* Same message indicator */}
+                                {sameMessageForAll && reminderCount > 1 && (
+                                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                                        <p className="text-xs text-blue-800 text-center">
+                                            This message will be sent {reminderCount} times on your scheduled dates
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Mock input area */}
+                            <div className="p-3 bg-white border-t flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                                    <ImageIcon className="w-3 h-3 text-emerald-600" />
+                                </div>
+                                <div className="h-8 bg-slate-100 rounded-full flex-1" />
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
 
