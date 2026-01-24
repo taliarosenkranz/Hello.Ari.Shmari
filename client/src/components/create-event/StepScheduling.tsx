@@ -190,149 +190,138 @@ export default function StepScheduling({ data, onUpdate, onNext, onBack }: StepS
             </Card>
 
             {/* Reminder Messages */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-emerald-500" />
-                        Reminder Messages
-                    </CardTitle>
-                    <CardDescription>
-                        Customize what guests receive in their reminder
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    {/* Toggle for same message */}
-                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                        <div>
-                            <Label className="text-base">Use same message for all reminders</Label>
-                            <p className="text-sm text-slate-500">
-                                {sameMessageForAll 
-                                    ? "All reminders will use the same text" 
-                                    : "Write a different message for each reminder"}
-                            </p>
-                        </div>
-                        <Switch 
-                            checked={sameMessageForAll}
-                            onCheckedChange={setSameMessageForAll}
-                        />
-                    </div>
-
-                    {/* Message Input(s) */}
-                    {sameMessageForAll ? (
-                        <div className="space-y-2">
-                            <Label>Reminder Message *</Label>
-                            <Textarea 
-                                value={defaultMessage}
-                                onChange={(e) => setDefaultMessage(e.target.value)}
-                                placeholder="Enter your reminder message..."
-                                className="min-h-[120px]"
+            <div className="grid md:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <MessageSquare className="w-5 h-5 text-emerald-500" />
+                            Reminder Messages
+                        </CardTitle>
+                        <CardDescription>
+                            Customize what guests receive in their reminder
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {/* Toggle for same message */}
+                        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                            <div>
+                                <Label className="text-base">Use same message for all reminders</Label>
+                                <p className="text-sm text-slate-500">
+                                    {sameMessageForAll 
+                                        ? "All reminders will use the same text" 
+                                        : "Write a different message for each reminder"}
+                                </p>
+                            </div>
+                            <Switch 
+                                checked={sameMessageForAll}
+                                onCheckedChange={setSameMessageForAll}
                             />
-                            <p className="text-xs text-slate-500">
-                                This message will be sent for all {reminderCount} reminder(s)
-                            </p>
                         </div>
-                    ) : (
-                        <div className="space-y-4">
+
+                        {/* Message Input(s) */}
+                        {sameMessageForAll ? (
                             <div className="space-y-2">
-                                <Label>1st Reminder Message *</Label>
+                                <Label>Reminder Message *</Label>
                                 <Textarea 
-                                    value={message1}
-                                    onChange={(e) => setMessage1(e.target.value)}
-                                    placeholder="First reminder message..."
-                                    className="min-h-[100px]"
+                                    value={defaultMessage}
+                                    onChange={(e) => setDefaultMessage(e.target.value)}
+                                    placeholder="Enter your reminder message..."
+                                    className="min-h-[120px]"
                                 />
+                                <p className="text-xs text-slate-500">
+                                    This message will be sent for all {reminderCount} reminder(s)
+                                </p>
                             </div>
-
-                            {reminderCount >= 2 && (
+                        ) : (
+                            <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label>2nd Reminder Message *</Label>
+                                    <Label>1st Reminder Message *</Label>
                                     <Textarea 
-                                        value={message2}
-                                        onChange={(e) => setMessage2(e.target.value)}
-                                        placeholder="Second reminder message (can be more urgent)..."
+                                        value={message1}
+                                        onChange={(e) => setMessage1(e.target.value)}
+                                        placeholder="First reminder message..."
                                         className="min-h-[100px]"
                                     />
                                 </div>
-                            )}
 
-                            {reminderCount >= 3 && (
-                                <div className="space-y-2">
-                                    <Label>3rd Reminder Message *</Label>
-                                    <Textarea 
-                                        value={message3}
-                                        onChange={(e) => setMessage3(e.target.value)}
-                                        placeholder="Final reminder message..."
-                                        className="min-h-[100px]"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* iPhone Message Preview */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Smartphone className="w-5 h-5 text-emerald-500" />
-                        Message Preview
-                    </CardTitle>
-                    <CardDescription>
-                        How your RSVP reminder{reminderCount > 1 ? 's' : ''} will appear to guests
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex justify-center">
-                        <div className="w-[300px] h-[500px] bg-white border-8 border-slate-900 rounded-[3rem] shadow-2xl overflow-hidden relative flex flex-col">
-                            {/* Phone header */}
-                            <div className="bg-slate-100 p-4 border-b text-center text-xs font-medium text-slate-500">
-                                RSVP Reminder Preview
-                            </div>
-                            
-                            {/* Messages area */}
-                            <div className="flex-1 bg-slate-50 p-4 overflow-y-auto space-y-4">
-                                {getPreviewMessages().map((item, index) => (
-                                    <div key={index}>
-                                        {/* Message label */}
-                                        <div className="text-center mb-2">
-                                            <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
-                                                {item.label}
-                                            </span>
-                                        </div>
-                                        {/* Message bubble */}
-                                        <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
-                                            <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
-                                                {item.message || '(Enter your message above)'}
-                                            </p>
-                                            <span className="text-[10px] text-slate-400 mt-1 block text-right">
-                                                {item.time}
-                                            </span>
-                                        </div>
+                                {reminderCount >= 2 && (
+                                    <div className="space-y-2">
+                                        <Label>2nd Reminder Message *</Label>
+                                        <Textarea 
+                                            value={message2}
+                                            onChange={(e) => setMessage2(e.target.value)}
+                                            placeholder="Second reminder message (can be more urgent)..."
+                                            className="min-h-[100px]"
+                                        />
                                     </div>
-                                ))}
-                                
-                                {/* Same message indicator */}
-                                {sameMessageForAll && reminderCount > 1 && (
-                                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                                        <p className="text-xs text-blue-800 text-center">
-                                            This message will be sent {reminderCount} times on your scheduled dates
-                                        </p>
+                                )}
+
+                                {reminderCount >= 3 && (
+                                    <div className="space-y-2">
+                                        <Label>3rd Reminder Message *</Label>
+                                        <Textarea 
+                                            value={message3}
+                                            onChange={(e) => setMessage3(e.target.value)}
+                                            placeholder="Final reminder message..."
+                                            className="min-h-[100px]"
+                                        />
                                     </div>
                                 )}
                             </div>
-                            
-                            {/* Mock input area */}
-                            <div className="p-3 bg-white border-t flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
-                                    <ImageIcon className="w-3 h-3 text-emerald-600" />
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* iPhone Message Preview */}
+                <div className="flex justify-center">
+                    <div className="w-[300px] h-[600px] bg-white border-8 border-slate-900 rounded-[3rem] shadow-2xl overflow-hidden relative flex flex-col">
+                        {/* Phone header */}
+                        <div className="bg-slate-100 p-4 border-b text-center text-xs font-medium text-slate-500">
+                            RSVP Reminder Preview
+                        </div>
+                        
+                        {/* Messages area */}
+                        <div className="flex-1 bg-slate-50 p-4 overflow-y-auto space-y-4">
+                            {getPreviewMessages().map((item, index) => (
+                                <div key={index}>
+                                    {/* Message label */}
+                                    <div className="text-center mb-2">
+                                        <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                    {/* Message bubble */}
+                                    <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%]">
+                                        <p className="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+                                            {item.message || '(Enter your message above)'}
+                                        </p>
+                                        <span className="text-[10px] text-slate-400 mt-1 block text-right">
+                                            {item.time}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="h-8 bg-slate-100 rounded-full flex-1" />
+                            ))}
+                            
+                            {/* Same message indicator */}
+                            {sameMessageForAll && reminderCount > 1 && (
+                                <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                                    <p className="text-xs text-blue-800 text-center">
+                                        This message will be sent {reminderCount} times on your scheduled dates
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Mock input area */}
+                        <div className="p-3 bg-white border-t flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <ImageIcon className="w-3 h-3 text-emerald-600" />
                             </div>
+                            <div className="h-8 bg-slate-100 rounded-full flex-1" />
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
             {/* Timeline Preview */}
             {((skipInvitations || invitationSendDate) && reminderDate1 && data.date) && (
