@@ -370,18 +370,28 @@ export const messages = {
 
   /**
    * Get messages needing human followup for a specific event
+   * Joins with guests table to include guest name and phone
    */
   async getFollowupNeededForEvent(eventId: string) {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+          *,
+          guests(name, phone_number)
+        `)
         .eq('event_id', eventId)
         .eq('needs_human_followup', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Message[];
+      
+      // Map the nested guest data to flat properties
+      return data.map((msg: any) => ({
+        ...msg,
+        guest_name: msg.guests?.name,
+        guest_phone: msg.guests?.phone_number
+      })) as Message[];
     } catch (error) {
       console.error('Error fetching event followup messages:', error);
       throw error;

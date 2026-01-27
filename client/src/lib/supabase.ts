@@ -79,6 +79,9 @@ export interface Message {
   response?: string;
   needs_human_followup: boolean;
   created_at?: string;
+  // Optional: guest details when joined
+  guest_name?: string;
+  guest_phone?: string;
 }
 
 // Auth helper functions

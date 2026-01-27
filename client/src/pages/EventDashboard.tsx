@@ -12,7 +12,6 @@ import KPIGrid from '@/components/dashboard/KPIGrid';
 import DashboardCharts from '@/components/dashboard/DashboardCharts';
 import TimelineStrip from '@/components/dashboard/TimelineStrip';
 import GuestTable from '@/components/dashboard/GuestTable';
-import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import MessagesAttention from '@/components/dashboard/MessagesAttention';
 
 export default function EventDashboard() {
@@ -126,8 +125,6 @@ export default function EventDashboard() {
 
                     {/* Side Column (Right 1/3) */}
                     <div className="space-y-8">
-                        <ActivityFeed guests={guests} />
-                        
                         {/* Event Status Card */}
                         <Card>
                             <CardHeader>

@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Clock, MessageSquare } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, MessageSquare, User, Phone } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -98,6 +98,15 @@ export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
                 key={msg.message_id}
                 className="p-4 bg-amber-50 border border-amber-200 rounded-lg"
               >
+                {/* Guest Info Header */}
+                <div className="mb-2 flex items-center gap-2 text-xs text-slate-600 pb-2 border-b border-amber-200">
+                  <User className="w-3 h-3" />
+                  <span className="font-medium">{msg.guest_name || 'Unknown Guest'}</span>
+                  <span className="text-slate-400">•</span>
+                  <Phone className="w-3 h-3" />
+                  <span>{msg.guest_phone || 'No phone'}</span>
+                </div>
+
                 {/* Original Message */}
                 <div className="mb-3">
                   <div className="flex items-start gap-2">
