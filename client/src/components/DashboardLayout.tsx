@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     const { signOut } = useAuth();
     const [location] = useLocation();
     const isAuthPage = location.toLowerCase().includes('login') || location.toLowerCase().includes('signin');
-    const isDashboard = location.includes('events') || location.includes('create');
+    const isDashboard = location.includes('event') || location.includes('create');
 
     return (
         <div className="min-h-screen bg-white font-sans text-slate-900">
