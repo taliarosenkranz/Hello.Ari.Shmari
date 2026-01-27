@@ -142,15 +142,6 @@ export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
                   </div>
                 </div>
 
-                {/* AI Response (if any) */}
-                {msg.response && (
-                  <div className="mb-3 pl-6">
-                    <p className="text-sm text-slate-600 bg-slate-100 p-2 rounded">
-                      {msg.response}
-                    </p>
-                  </div>
-                )}
-
                 {/* Footer with time and action */}
                 <div className="flex items-center justify-between pt-2 border-t border-amber-200">
                   <div className="flex items-center gap-1 text-xs text-slate-500">
