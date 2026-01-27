@@ -341,7 +341,6 @@ export default function GuestTable({ guests, onRefresh, eventId }: GuestTablePro
                                 <TableHead>Status</TableHead>
                                 <TableHead className="hidden md:table-cell">Channel</TableHead>
                                 <TableHead className="hidden sm:table-cell">Invited</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -392,18 +391,11 @@ export default function GuestTable({ guests, onRefresh, eventId }: GuestTablePro
                                                 <span className="text-slate-400 text-xs">Draft</span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                <span className="sr-only">Menu</span>
-                                                <div className="w-4 h-4 bg-slate-400 rounded-full" /> 
-                                                {/* Placeholder for edit actions */}
-                                            </Button>
-                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-slate-500">
+                                    <TableCell colSpan={4} className="h-24 text-center text-slate-500">
                                         No guests found.
                                     </TableCell>
                                 </TableRow>
