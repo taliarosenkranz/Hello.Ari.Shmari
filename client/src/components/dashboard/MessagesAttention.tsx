@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, Clock, MessageSquare, User, Phone } from "lucide-react";
+import { AlertCircle, CheckCircle, Clock, MessageSquare, User, Phone, Copy } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -14,6 +14,15 @@ interface MessagesAttentionProps {
 
 export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
   const queryClient = useQueryClient();
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Could add a toast notification here
+      console.log(`${label} copied to clipboard`);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  };
 
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['messages-attention', eventId],
@@ -102,9 +111,23 @@ export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
                 <div className="mb-2 flex items-center gap-2 text-xs text-slate-600 pb-2 border-b border-amber-200">
                   <User className="w-3 h-3" />
                   <span className="font-medium">{msg.guest_name || 'Unknown Guest'}</span>
+                  <button
+                    onClick={() => copyToClipboard(msg.guest_name || '', 'Name')}
+                    className="hover:bg-slate-200 p-0.5 rounded transition-colors"
+                    title="Copy name"
+                  >
+                    <Copy className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+                  </button>
                   <span className="text-slate-400">•</span>
                   <Phone className="w-3 h-3" />
                   <span>{msg.guest_phone || 'No phone'}</span>
+                  <button
+                    onClick={() => copyToClipboard(msg.guest_phone || '', 'Phone')}
+                    className="hover:bg-slate-200 p-0.5 rounded transition-colors"
+                    title="Copy phone number"
+                  >
+                    <Copy className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+                  </button>
                 </div>
 
                 {/* Original Message */}
@@ -122,7 +145,6 @@ export default function MessagesAttention({ eventId }: MessagesAttentionProps) {
                 {/* AI Response (if any) */}
                 {msg.response && (
                   <div className="mb-3 pl-6">
-                    <p className="text-xs text-slate-500 mb-1">AI Response:</p>
                     <p className="text-sm text-slate-600 bg-slate-100 p-2 rounded">
                       {msg.response}
                     </p>

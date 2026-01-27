@@ -6,7 +6,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Share2, Calendar as CalendarIcon, MapPin, Loader2 } from "lucide-react";
+import { ChevronLeft, Calendar as CalendarIcon, MapPin, Loader2 } from "lucide-react";
 import { format } from 'date-fns';
 import KPIGrid from '@/components/dashboard/KPIGrid';
 import DashboardCharts from '@/components/dashboard/DashboardCharts';
@@ -73,29 +73,17 @@ export default function EventDashboard() {
                         <span className="truncate">{event.name}</span>
                     </div>
 
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h1 className="text-3xl font-serif font-bold text-slate-900">{event.name}</h1>
-                            <div className="flex items-center gap-4 mt-2 text-slate-500 text-sm">
-                                <span className="flex items-center gap-1">
-                                    <CalendarIcon className="w-4 h-4" />
-                                    {event.date ? format(new Date(event.date), 'PPP p') : 'Date TBD'}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                    <MapPin className="w-4 h-4" />
-                                    {event.venue || 'Venue TBD'}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" className="gap-2">
-                                <Share2 className="w-4 h-4" />
-                                Share Event
-                            </Button>
-                            {/* Placeholder for Edit Event */}
-                            <Button className="bg-emerald-500 hover:bg-emerald-600">
-                                Edit Details
-                            </Button>
+                    <div>
+                        <h1 className="text-3xl font-serif font-bold text-slate-900">{event.name}</h1>
+                        <div className="flex items-center gap-4 mt-2 text-slate-500 text-sm">
+                            <span className="flex items-center gap-1">
+                                <CalendarIcon className="w-4 h-4" />
+                                {event.date ? format(new Date(event.date), 'PPP p') : 'Date TBD'}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <MapPin className="w-4 h-4" />
+                                {event.venue || 'Venue TBD'}
+                            </span>
                         </div>
                     </div>
                 </div>
