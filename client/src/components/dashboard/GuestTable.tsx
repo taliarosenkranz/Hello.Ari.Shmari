@@ -5,16 +5,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Download, Search, RefreshCcw, Filter, CheckCircle2, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Download, Search, RefreshCcw, Filter, CheckCircle2, Loader2, UserPlus } from "lucide-react";
 import { Guest } from '@/lib/supabase';
 import { guests as guestsApi } from '@/lib/api';
 import { useMutation } from '@tanstack/react-query';
 
-export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onRefresh: () => void }) {
+interface GuestTableProps {
+    guests: Guest[];
+    onRefresh: () => void;
+    eventId: string | null;
+}
+
+export default function GuestTable({ guests, onRefresh, eventId }: GuestTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [channelFilter, setChannelFilter] = useState('all');
     const [updatingGuestId, setUpdatingGuestId] = useState<number | null>(null);
+    
+    // Add Guest Dialog state
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [newGuest, setNewGuest] = useState({
+        name: '',
+        phone_number: '',
+        messaging_preference: 'whatsapp' as 'whatsapp' | 'sms',
+        rsvp_status: 'pending' as 'pending' | 'confirmed' | 'declined'
+    });
 
     // Mutation for updating guest status
     const updateStatusMutation = useMutation({
@@ -34,6 +51,55 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
     const handleStatusChange = (guestId: number, newStatus: string) => {
         setUpdatingGuestId(guestId);
         updateStatusMutation.mutate({ guestId, status: newStatus });
+    };
+
+    // Mutation for creating new guest
+    const createGuestMutation = useMutation({
+        mutationFn: async (guestData: Partial<Guest>) => {
+            return guestsApi.create(guestData);
+        },
+        onSuccess: () => {
+            onRefresh();
+            setIsAddDialogOpen(false);
+            // Reset form
+            setNewGuest({
+                name: '',
+                phone_number: '',
+                messaging_preference: 'whatsapp',
+                rsvp_status: 'pending'
+            });
+        },
+        onError: (error: any) => {
+            console.error('Error creating guest:', error);
+            alert(error?.message || 'Failed to add guest. Please try again.');
+        }
+    });
+
+    const handleAddGuest = () => {
+        // Basic validation
+        if (!newGuest.name.trim()) {
+            alert('Please enter the guest name');
+            return;
+        }
+        if (!newGuest.phone_number.trim()) {
+            alert('Please enter the phone number');
+            return;
+        }
+        // Phone number validation (basic)
+        if (!newGuest.phone_number.startsWith('+')) {
+            alert('Phone number must include country code (e.g., +1234567890)');
+            return;
+        }
+        if (!eventId) {
+            alert('Unable to determine event. Please refresh and try again.');
+            return;
+        }
+        
+        createGuestMutation.mutate({
+            ...newGuest,
+            event_id: Number(eventId),
+            invitation_received: false
+        });
     };
 
     // Filter Logic
@@ -112,6 +178,130 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
                         <Download className="h-4 w-4 mr-2" />
                         Export
                     </Button>
+                    
+                    {/* Add Guest Dialog */}
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600">
+                                <UserPlus className="h-4 w-4 mr-2" />
+                                Add Guest
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Add New Guest</DialogTitle>
+                                <DialogDescription>
+                                    Add a guest to your event. Fill in their details below.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                {/* Name Field */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="name">
+                                        Full Name <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="name"
+                                        placeholder="John Doe"
+                                        value={newGuest.name}
+                                        onChange={(e) => setNewGuest({ ...newGuest, name: e.target.value })}
+                                    />
+                                </div>
+                                
+                                {/* Phone Number Field */}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="phone">
+                                        Phone Number <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        placeholder="+1234567890"
+                                        value={newGuest.phone_number}
+                                        onChange={(e) => setNewGuest({ ...newGuest, phone_number: e.target.value })}
+                                    />
+                                    <p className="text-xs text-slate-500">Include country code (e.g., +1 for US, +972 for Israel)</p>
+                                </div>
+                                
+                                {/* Messaging Preference Field */}
+                                <div className="grid gap-2">
+                                    <Label>Messaging Preference</Label>
+                                    <Select
+                                        value={newGuest.messaging_preference}
+                                        onValueChange={(value: 'whatsapp' | 'sms') => 
+                                            setNewGuest({ ...newGuest, messaging_preference: value })
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                                            <SelectItem value="sms">SMS</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                
+                                {/* RSVP Status Field */}
+                                <div className="grid gap-2">
+                                    <Label>RSVP Status</Label>
+                                    <Select
+                                        value={newGuest.rsvp_status}
+                                        onValueChange={(value: 'pending' | 'confirmed' | 'declined') => 
+                                            setNewGuest({ ...newGuest, rsvp_status: value })
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="pending">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="confirmed">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge className="bg-emerald-100 text-emerald-700">Confirmed</Badge>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="declined">
+                                                <div className="flex items-center gap-2">
+                                                    <Badge className="bg-red-100 text-red-700">Declined</Badge>
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <p className="text-xs text-slate-500">
+                                        Select "Confirmed" if the guest has already RSVP'd
+                                    </p>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsAddDialogOpen(false)}
+                                    disabled={createGuestMutation.isPending}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleAddGuest}
+                                    disabled={createGuestMutation.isPending}
+                                    className="bg-emerald-500 hover:bg-emerald-600"
+                                >
+                                    {createGuestMutation.isPending ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Adding...
+                                        </>
+                                    ) : (
+                                        'Add Guest'
+                                    )}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </CardHeader>
             <CardContent>

@@ -120,7 +120,7 @@ export default function EventDashboard() {
                         </div>
                         
                         {/* Guest Table */}
-                        <GuestTable guests={guests} onRefresh={refetchGuests} />
+                        <GuestTable guests={guests} onRefresh={refetchGuests} eventId={eventId} />
                     </div>
 
                     {/* Side Column (Right 1/3) */}
