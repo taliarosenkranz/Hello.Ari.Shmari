@@ -5,13 +5,36 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Download, Search, RefreshCcw, Filter, CheckCircle2 } from "lucide-react";
+import { Download, Search, RefreshCcw, Filter, CheckCircle2, Loader2 } from "lucide-react";
 import { Guest } from '@/lib/supabase';
+import { guests as guestsApi } from '@/lib/api';
+import { useMutation } from '@tanstack/react-query';
 
 export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onRefresh: () => void }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [channelFilter, setChannelFilter] = useState('all');
+    const [updatingGuestId, setUpdatingGuestId] = useState<number | null>(null);
+
+    // Mutation for updating guest status
+    const updateStatusMutation = useMutation({
+        mutationFn: async ({ guestId, status }: { guestId: number; status: string }) => {
+            return guestsApi.update(String(guestId), { rsvp_status: status as 'pending' | 'confirmed' | 'declined' });
+        },
+        onSuccess: () => {
+            onRefresh();
+            setUpdatingGuestId(null);
+        },
+        onError: (error) => {
+            console.error('Error updating guest status:', error);
+            setUpdatingGuestId(null);
+        }
+    });
+
+    const handleStatusChange = (guestId: number, newStatus: string) => {
+        setUpdatingGuestId(guestId);
+        updateStatusMutation.mutate({ guestId, status: newStatus });
+    };
 
     // Filter Logic
     const filteredGuests = guests.filter((guest: Guest) => {
@@ -139,7 +162,34 @@ export default function GuestTable({ guests, onRefresh }: { guests: Guest[], onR
                                             <div className="font-medium">{guest.name}</div>
                                             <div className="text-xs text-slate-500">{guest.phone_number}</div>
                                         </TableCell>
-                                        <TableCell>{getStatusBadge(guest.rsvp_status)}</TableCell>
+                                        <TableCell>
+                                            <Select
+                                                value={guest.rsvp_status || 'pending'}
+                                                onValueChange={(value) => handleStatusChange(guest.guest_id, value)}
+                                                disabled={updatingGuestId === guest.guest_id}
+                                            >
+                                                <SelectTrigger className="h-7 w-[120px] border-0 bg-transparent p-0 focus:ring-0">
+                                                    {updatingGuestId === guest.guest_id ? (
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                    ) : (
+                                                        <SelectValue>
+                                                            {getStatusBadge(guest.rsvp_status)}
+                                                        </SelectValue>
+                                                    )}
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="pending">
+                                                        <Badge variant="outline" className="text-amber-600 border-amber-200">Pending</Badge>
+                                                    </SelectItem>
+                                                    <SelectItem value="confirmed">
+                                                        <Badge className="bg-emerald-100 text-emerald-700">Confirmed</Badge>
+                                                    </SelectItem>
+                                                    <SelectItem value="declined">
+                                                        <Badge className="bg-red-100 text-red-700">Declined</Badge>
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </TableCell>
                                         <TableCell className="hidden md:table-cell capitalize text-sm">
                                             {guest.messaging_preference}
                                         </TableCell>
