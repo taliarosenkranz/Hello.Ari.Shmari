@@ -64,7 +64,7 @@ export default function Layout({ children }: { children: ReactNode }) {
             {!isDashboard && !isAuthPage && (
                 <footer className="bg-slate-50 py-12 border-t border-slate-100 mt-20">
                     <div className="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-                        <p>© 2024 ARI Events. All rights reserved.</p>
+                        <p>© 2026 ARI Events. All rights reserved.</p>
                     </div>
                 </footer>
             )}
