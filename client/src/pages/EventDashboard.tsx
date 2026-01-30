@@ -121,8 +121,8 @@ export default function EventDashboard() {
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between items-center pb-2 border-b">
                                     <span className="text-sm text-slate-500">Invitations</span>
-                                    <Badge variant={(eventStatus?.invitations_sent_out || (eventStatus?.invitation_send_date && new Date(eventStatus.invitation_send_date) < new Date())) ? "default" : "secondary"}>
-                                        {(eventStatus?.invitations_sent_out || (eventStatus?.invitation_send_date && new Date(eventStatus.invitation_send_date) < new Date())) ? "Sent" : "Draft"}
+                                    <Badge variant={eventStatus?.invitations_sent_out ? "default" : "secondary"}>
+                                        {eventStatus?.invitations_sent_out ? "Sent" : "Draft"}
                                     </Badge>
                                 </div>
                                 <div className="flex justify-between items-center pb-2 border-b">
