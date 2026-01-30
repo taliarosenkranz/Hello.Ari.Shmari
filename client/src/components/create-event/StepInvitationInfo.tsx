@@ -23,6 +23,8 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
         { key: '{event_name}', label: 'Event Name', example: data.name || 'Wedding Celebration' },
         { key: '{date}', label: 'Event Date', example: data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'January 20, 2026' },
         { key: '{venue}', label: 'Venue', example: data.venue || 'Grand Ballroom' },
+        { key: '{start_time}', label: 'Event Start Time', example: data.start_time || '6:00 PM' },
+        { key: '{chuppah_start_time}', label: 'Chuppah Start Time', example: data.chuppah_start_time || '7:30 PM' },
     ];
 
     const insertPlaceholder = (placeholder: string) => {
@@ -61,10 +63,12 @@ export default function StepInvitation({ data, onUpdate, onNext, onBack }: StepI
     // Generate preview message with sample values
     const getPreviewMessage = () => {
         return message
-            .replace('{guest_name}', 'Sarah')
-            .replace('{event_name}', data.name || 'Wedding Celebration')
-            .replace('{date}', data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'January 20, 2026')
-            .replace('{venue}', data.venue || 'Grand Ballroom');
+            .replace(/{guest_name}/g, 'Sarah')
+            .replace(/{event_name}/g, data.name || 'Wedding Celebration')
+            .replace(/{date}/g, data.date ? new Date(data.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'January 20, 2026')
+            .replace(/{venue}/g, data.venue || 'Grand Ballroom')
+            .replace(/{start_time}/g, data.start_time || '6:00 PM')
+            .replace(/{chuppah_start_time}/g, data.chuppah_start_time || '7:30 PM');
     };
 
     return (

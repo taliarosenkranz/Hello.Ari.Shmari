@@ -12,7 +12,7 @@ export default function TimelineStrip({ event, eventStatus }) {
             label: 'Invitations Sent',
             date: eventStatus.invitation_send_date,
             icon: Send,
-            completed: eventStatus.invitations_sent_out,
+            completed: eventStatus.invitations_sent_out || (eventStatus.invitation_send_date && new Date(eventStatus.invitation_send_date) < new Date()),
             color: 'text-blue-500',
             bg: 'bg-blue-100'
         },
